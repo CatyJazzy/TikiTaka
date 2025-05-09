@@ -13,6 +13,9 @@ export default function QuestScreen() {
       <Button onPress={() => router.push('/loading')} width={180}>
         로딩 페이지로 이동
       </Button>
+      <Button onPress={() => router.push('/signup')} width={180}>
+        가입 페이지로 이동
+      </Button>
     </Stack>
   );
 } 

@@ -2,6 +2,7 @@ import { YStack, Text, Button, Input, XStack, Stack } from 'tamagui';
 import { Select } from '@tamagui/select';
 import { Check } from '@tamagui/lucide-icons';
 import { SignupStepProps } from './types';
+import { Adapt } from '@tamagui/adapt';
 
 export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
   return (
@@ -22,6 +23,17 @@ export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           <Select.Trigger>
             <Select.Value placeholder="성별 선택" />
           </Select.Trigger>
+
+          <Adapt when="sm" platform="touch">
+            <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
+              <Select.Sheet.Frame>
+                <Select.Sheet.ScrollView>
+                  <Adapt.Contents />
+                </Select.Sheet.ScrollView>
+              </Select.Sheet.Frame>
+              <Select.Sheet.Overlay />
+            </Select.Sheet>
+          </Adapt>
 
           <Select.Content>
             <Select.ScrollUpButton />

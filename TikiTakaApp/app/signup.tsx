@@ -6,6 +6,8 @@ import { Step2 } from './signup/Step2';
 import { Step3 } from './signup/Step3';
 import { Step4 } from './signup/Step4';
 import { Step5 } from './signup/Step5';
+import { Step6 } from './signup/Step6';
+import { Step7 } from './signup/Step7';
 import { SignupFormData } from './signup/types';
 
 export default function SignupScreen() {
@@ -21,6 +23,9 @@ export default function SignupScreen() {
     primaryLanguage: '',
     targetLanguage: '',
     canSpeakEnglish: false,
+    activities: [],
+    otherActivity: '',
+    profileImage: '',
   });
 
   const handleUpdate = (data: Partial<SignupFormData>) => {
@@ -28,7 +33,7 @@ export default function SignupScreen() {
   };
 
   const handleNext = () => {
-    if (currentStep === 5) {
+    if (currentStep === 7) {
       // TODO: 회원가입 로직 구현
       console.log('회원가입 완료:', formData);
       router.replace('/login');
@@ -87,6 +92,24 @@ export default function SignupScreen() {
       )}
       {currentStep === 5 && (
         <Step5
+          formData={formData}
+          onUpdate={handleUpdate}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          currentStep={currentStep}
+        />
+      )}
+      {currentStep === 6 && (
+        <Step6
+          formData={formData}
+          onUpdate={handleUpdate}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          currentStep={currentStep}
+        />
+      )}
+      {currentStep === 7 && (
+        <Step7
           formData={formData}
           onUpdate={handleUpdate}
           onNext={handleNext}

@@ -9,6 +9,9 @@ export interface SignupFormData {
   primaryLanguage: string;
   targetLanguage: string;
   canSpeakEnglish: boolean;
+  activities: string[];
+  otherActivity: string;
+  profileImage: string;
 }
 
 export interface SignupStepProps {

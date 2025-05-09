@@ -1,8 +1,9 @@
-import { YStack, Text, Button, XStack, Stack, Adapt, Sheet } from 'tamagui';
+import { YStack, Text, Button, XStack, Stack } from 'tamagui';
 import { Select } from '@tamagui/select';
 import { Checkbox } from '@tamagui/checkbox';
 import { Check } from '@tamagui/lucide-icons';
 import { SignupStepProps } from './types';
+import { Adapt } from '@tamagui/adapt';
 
 const LANGUAGES = [
   '한국어',
@@ -30,7 +31,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             주로 사용하는 언어
           </Text>
           <Text color="$gray11" fontSize="$3">
-            주로 사용하는 언어를 선택해 주세요.
+            평소에 주로 사용하는 언어를 선택해 주세요.
           </Text>
           <Stack width="100%">
             <Select
@@ -41,6 +42,17 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
               <Select.Trigger>
                 <Select.Value placeholder="주로 사용하는 언어 선택" />
               </Select.Trigger>
+
+              <Adapt when="sm" platform="touch">
+                <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
+                  <Select.Sheet.Frame>
+                    <Select.Sheet.ScrollView>
+                      <Adapt.Contents />
+                    </Select.Sheet.ScrollView>
+                  </Select.Sheet.Frame>
+                  <Select.Sheet.Overlay />
+                </Select.Sheet>
+              </Adapt>
 
               <Select.Content>
                 <Select.ScrollUpButton />
@@ -79,6 +91,17 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                 <Select.Value placeholder="교류하고 싶은 언어 선택" />
               </Select.Trigger>
 
+              <Adapt when="sm" platform="touch">
+                <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
+                  <Select.Sheet.Frame>
+                    <Select.Sheet.ScrollView>
+                      <Adapt.Contents />
+                    </Select.Sheet.ScrollView>
+                  </Select.Sheet.Frame>
+                  <Select.Sheet.Overlay />
+                </Select.Sheet>
+              </Adapt>
+
               <Select.Content>
                 <Select.ScrollUpButton />
                 <Select.Viewport>
@@ -103,20 +126,19 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           <Text fontSize="$5" fontWeight="bold">
             영어 사용 가능 여부
           </Text>
-          <Text color="$gray11" fontSize="$3">
-            영어를 사용할 수 있나요?
-          </Text>
           <XStack space="$2" alignItems="center">
             <Checkbox
               id="english"
               checked={formData.canSpeakEnglish}
-              onCheckedChange={(checked) => onUpdate({ canSpeakEnglish: checked as boolean })}
+              onCheckedChange={(checked: boolean) => onUpdate({ canSpeakEnglish: checked })}
+              size="$5"
+              padding="$2"
             >
               <Checkbox.Indicator>
-                <Check size={16} />
+                <Check size={24} />
               </Checkbox.Indicator>
             </Checkbox>
-            <Text>영어 사용 가능</Text>
+            <Text fontSize="$4">가능해요</Text>
           </XStack>
         </YStack>
       </YStack>
@@ -138,7 +160,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           size="$4"
           flex={1}
         >
-          회원가입 완료
+          다음
         </Button>
       </XStack>
     </YStack>

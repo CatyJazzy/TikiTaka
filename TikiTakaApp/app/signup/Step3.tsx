@@ -1,33 +1,13 @@
-import { YStack, Text, Input, Button, XStack, Stack, Adapt, Sheet } from 'tamagui';
+import { YStack, Text, Input, Button, XStack, Stack } from 'tamagui';
+import { Adapt } from '@tamagui/adapt';
 import { Select } from '@tamagui/select';
 import { Check } from '@tamagui/lucide-icons';
 import { SignupStepProps } from './types';
-import { useRef, useEffect } from 'react';
-import { Keyboard, TextInput } from 'react-native';
+import { useRef } from 'react';
+import { TextInput } from 'react-native';
 
 export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
   const nameInputRef = useRef<TextInput>(null);
-  const isSelectInteraction = useRef(false);
-
-  const handleSelectOpen = () => {
-    isSelectInteraction.current = true;
-    Keyboard.dismiss();
-  };
-
-  const handleValueChange = (setter: (value: string) => void) => (value: string) => {
-    setter(value);
-    isSelectInteraction.current = true;
-  };
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (isSelectInteraction.current) {
-        isSelectInteraction.current = false;
-      }
-    }, 100);
-    
-    return () => clearTimeout(timeoutId);
-  });
 
   const years = Array.from({ length: 30 }, (_, i) => (new Date().getFullYear() - 30 + i).toString());
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
@@ -48,45 +28,35 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
         value={formData.name}
         onChangeText={(value) => onUpdate({ name: value })}
         width="100%"
-        onFocus={() => {
-          if (isSelectInteraction.current) {
-            nameInputRef.current?.blur();
-          }
-        }}
+        marginBottom="$4"
       />
 
       <XStack space="$2" width="100%">
+        {/* 년도 */}
         <Stack flex={1}>
           <Select
-            id="year"
             value={formData.birthYear}
-            onValueChange={handleValueChange((value) => onUpdate({ birthYear: value }))}
-            onOpenChange={(open) => {
-              if (open) handleSelectOpen();
-            }}
-            disablePreventBodyScroll
+            onValueChange={(value) => onUpdate({ birthYear: value })}
           >
             <Select.Trigger>
               <Select.Value placeholder="년도" />
             </Select.Trigger>
-
             <Adapt when="sm" platform="touch">
-              <Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
-                <Sheet.Frame>
-                  <Sheet.ScrollView>
+              <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
+                <Select.Sheet.Frame>
+                  <Select.Sheet.ScrollView>
                     <Adapt.Contents />
-                  </Sheet.ScrollView>
-                </Sheet.Frame>
-                <Sheet.Overlay />
-              </Sheet>
+                  </Select.Sheet.ScrollView>
+                </Select.Sheet.Frame>
+                <Select.Sheet.Overlay />
+              </Select.Sheet>
             </Adapt>
-
             <Select.Content>
               <Select.ScrollUpButton />
               <Select.Viewport>
                 <Select.Group>
-                  {years.map((year, index) => (
-                    <Select.Item key={year} value={year} index={index}>
+                  {years.map((year) => (
+                    <Select.Item key={year} value={year}>
                       <Select.ItemText>{year}년</Select.ItemText>
                       <Select.ItemIndicator>
                         <Check size={16} />
@@ -99,38 +69,31 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             </Select.Content>
           </Select>
         </Stack>
-
+        {/* 월 */}
         <Stack flex={1}>
           <Select
-            id="month"
             value={formData.birthMonth}
-            onValueChange={handleValueChange((value) => onUpdate({ birthMonth: value }))}
-            onOpenChange={(open) => {
-              if (open) handleSelectOpen();
-            }}
-            disablePreventBodyScroll
+            onValueChange={(value) => onUpdate({ birthMonth: value })}
           >
             <Select.Trigger>
               <Select.Value placeholder="월" />
             </Select.Trigger>
-
             <Adapt when="sm" platform="touch">
-              <Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
-                <Sheet.Frame>
-                  <Sheet.ScrollView>
+              <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
+                <Select.Sheet.Frame>
+                  <Select.Sheet.ScrollView>
                     <Adapt.Contents />
-                  </Sheet.ScrollView>
-                </Sheet.Frame>
-                <Sheet.Overlay />
-              </Sheet>
+                  </Select.Sheet.ScrollView>
+                </Select.Sheet.Frame>
+                <Select.Sheet.Overlay />
+              </Select.Sheet>
             </Adapt>
-
             <Select.Content>
               <Select.ScrollUpButton />
               <Select.Viewport>
                 <Select.Group>
-                  {months.map((month, index) => (
-                    <Select.Item key={month} value={month} index={index}>
+                  {months.map((month) => (
+                    <Select.Item key={month} value={month}>
                       <Select.ItemText>{month}월</Select.ItemText>
                       <Select.ItemIndicator>
                         <Check size={16} />
@@ -143,38 +106,31 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             </Select.Content>
           </Select>
         </Stack>
-
+        {/* 일 */}
         <Stack flex={1}>
           <Select
-            id="day"
             value={formData.birthDay}
-            onValueChange={handleValueChange((value) => onUpdate({ birthDay: value }))}
-            onOpenChange={(open) => {
-              if (open) handleSelectOpen();
-            }}
-            disablePreventBodyScroll
+            onValueChange={(value) => onUpdate({ birthDay: value })}
           >
             <Select.Trigger>
               <Select.Value placeholder="일" />
             </Select.Trigger>
-
             <Adapt when="sm" platform="touch">
-              <Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
-                <Sheet.Frame>
-                  <Sheet.ScrollView>
+              <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
+                <Select.Sheet.Frame>
+                  <Select.Sheet.ScrollView>
                     <Adapt.Contents />
-                  </Sheet.ScrollView>
-                </Sheet.Frame>
-                <Sheet.Overlay />
-              </Sheet>
+                  </Select.Sheet.ScrollView>
+                </Select.Sheet.Frame>
+                <Select.Sheet.Overlay />
+              </Select.Sheet>
             </Adapt>
-
             <Select.Content>
               <Select.ScrollUpButton />
               <Select.Viewport>
                 <Select.Group>
-                  {days.map((day, index) => (
-                    <Select.Item key={day} value={day} index={index}>
+                  {days.map((day) => (
+                    <Select.Item key={day} value={day}>
                       <Select.ItemText>{day}일</Select.ItemText>
                       <Select.ItemIndicator>
                         <Check size={16} />
