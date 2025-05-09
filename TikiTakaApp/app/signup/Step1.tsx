@@ -1,7 +1,43 @@
 import { YStack, Text, Button, Input, XStack, Stack } from 'tamagui';
-import { Image, ScrollView, Keyboard, KeyboardAvoidingView, Platform, TextInput, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { Image, ScrollView, Keyboard, KeyboardAvoidingView, Platform, TextInput  } from 'react-native';
 import { SignupStepProps } from './types';
 import { useState, useRef, useCallback } from 'react';
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+const sendVerificationEmail = async (email: string) => {
+  const response = await fetch(`${API_URL}/auth/send-verification`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || '인증 코드 전송에 실패했습니다.');
+  }
+
+  return response.json();
+};
+
+const verifyEmailCode = async (email: string, code: string) => {
+  const response = await fetch(`${API_URL}/auth/verify-email`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, code }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || '인증 코드가 올바르지 않습니다.');
+  }
+
+  return response.json();
+};
 
 export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
   const [isSendingCode, setIsSendingCode] = useState(false);
@@ -19,12 +55,10 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
     
     setIsSendingCode(true);
     try {
-      // TODO: 실제 이메일 인증 코드 전송 API 호출
-      // 임시로 1초 후 성공으로 처리
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await sendVerificationEmail(formData.email);
       alert('인증 코드가 이메일로 전송되었습니다.');
     } catch (error) {
-      alert('인증 코드 전송에 실패했습니다.');
+      alert(error instanceof Error ? error.message : '인증 코드 전송에 실패했습니다.');
     } finally {
       setIsSendingCode(false);
     }
@@ -38,13 +72,11 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
 
     setIsVerifying(true);
     try {
-      // TODO: 실제 인증 코드 확인 API 호출
-      // 임시로 1초 후 성공으로 처리
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await verifyEmailCode(formData.email, formData.verificationCode);
       onUpdate({ isEmailVerified: true });
       alert('이메일 인증이 완료되었습니다.');
     } catch (error) {
-      alert('인증 코드가 올바르지 않습니다.');
+      alert(error instanceof Error ? error.message : '인증 코드가 올바르지 않습니다.');
     } finally {
       setIsVerifying(false);
     }
