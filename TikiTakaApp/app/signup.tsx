@@ -13,6 +13,10 @@ import { SignupFormData } from './signup/types';
 export default function SignupScreen() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SignupFormData>({
+    email: '',
+    password: '',
+    verificationCode: '',
+    isEmailVerified: false,
     portalImage: '',
     name: '',
     birthYear: '',

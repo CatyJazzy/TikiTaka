@@ -1,4 +1,8 @@
 export interface SignupFormData {
+  email: string;
+  password: string;
+  verificationCode: string;
+  isEmailVerified: boolean;
   portalImage: string;
   name: string;
   birthYear: string;
