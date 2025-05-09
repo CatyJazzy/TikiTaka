@@ -31,6 +31,8 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
     }
   };
 
+  const isFormValid = !!formData.portalImage;
+
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -115,7 +117,8 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
               color="$gray12"
               size="$4"
               flex={1}
-              disabled={!formData.portalImage}
+              disabled={!isFormValid}
+              opacity={isFormValid ? 1 : 0.5}
             >
               다음
             </Button>

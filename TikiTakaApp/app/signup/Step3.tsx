@@ -13,6 +13,8 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
   const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
+  const isFormValid = formData.name && formData.birthYear && formData.birthMonth && formData.birthDay;
+
   return (
     <YStack space="$4" width="100%" maxWidth={340} alignItems="center">
       <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
@@ -161,6 +163,8 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           color="$gray12"
           size="$4"
           flex={1}
+          opacity={isFormValid ? 1 : 0.5}
+          disabled={!isFormValid}
         >
           다음
         </Button>

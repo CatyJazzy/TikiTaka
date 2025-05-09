@@ -38,6 +38,9 @@ export const Step6 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
     onUpdate({ activities: newActivities });
   };
 
+  const isFormValid = formData.activities && formData.activities.length > 0 && 
+    (!formData.activities.includes('기타') || formData.otherActivity);
+
   return (
     <YStack space="$4" width="100%" maxWidth={340} alignItems="center">
       <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
@@ -96,6 +99,8 @@ export const Step6 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           color="$gray12"
           size="$4"
           flex={1}
+          opacity={isFormValid ? 1 : 0.5}
+          disabled={!isFormValid}
         >
           다음
         </Button>

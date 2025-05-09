@@ -4,6 +4,7 @@ import { SignupStepProps } from './types';
 import { useState, useRef, useCallback } from 'react';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
+console.log(API_URL);
 
 const sendVerificationEmail = async (email: string) => {
   const response = await fetch(`${API_URL}/auth/send-verification`, {
@@ -46,6 +47,8 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
   const scrollViewRef = useRef<ScrollView>(null);
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
+
+  const isFormValid = formData.isEmailVerified && formData.password && formData.password.length >= 1;
 
   const handleSendVerificationCode = async () => {
     if (!formData.email) {
@@ -210,7 +213,8 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             color="$gray12"
             size="$5"
             width="100%"
-            disabled={!formData.isEmailVerified || !formData.password}
+            disabled={!isFormValid}
+            opacity={isFormValid ? 1 : 0.5}
           >
             다음
           </Button>
