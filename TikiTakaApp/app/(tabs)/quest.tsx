@@ -13,6 +13,9 @@ export default function QuestScreen() {
       <Button onPress={() => router.push('/loading')} width={180}>
         로딩 페이지로 이동
       </Button>
+      <Button onPress={() => router.push('/language')} width={180}>
+        언어선택 페이지로 이동
+      </Button>
     </Stack>
   );
 } 
