@@ -2,13 +2,16 @@ import express from 'express';
 import { connectDB } from './db';
 import authRouter from './routes/auth';
 import cors from 'cors';
+import { networkInterfaces } from 'os';
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = Number(process.env.PORT) || 4000;
 
 // CORS 설정
 app.use(cors({
-  origin: '*', // 모든 origin 임시허용
+  origin: ['http://localhost:8081', 'http://localhost:19006'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
 
@@ -21,8 +24,16 @@ app.get('/', (req, res) => {
 // 인증 라우터 등록
 app.use('/api/auth', authRouter);
 
+// 서버 시작
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 서버가 http://localhost:${PORT} 에서 실행 중`);
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    const nets = networkInterfaces();
+    const results = Object.values(nets)
+      .flat()
+      .filter((net) => net && net.family === 'IPv4' && !net.internal)
+      .map((net) => net?.address);
+
+    console.log('서버가 다음 IP 주소에서 실행 중입니다:');
+    results.forEach(ip => console.log(`- http://${ip}:${PORT}`));
   });
 });
