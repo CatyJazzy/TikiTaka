@@ -9,9 +9,11 @@ import { Step5 } from './signup/Step5';
 import { Step6 } from './signup/Step6';
 import { Step7 } from './signup/Step7';
 import { SignupFormData } from './signup/types';
+import { API_URL } from '../constants';
 
 export default function SignupScreen() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<SignupFormData>({
     email: '',
     password: '',
@@ -36,11 +38,30 @@ export default function SignupScreen() {
     setFormData(prev => ({ ...prev, ...data }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 7) {
-      // TODO: 회원가입 로직 구현
-      console.log('회원가입 완료:', formData);
-      router.replace('/login');
+      try {
+        setIsSubmitting(true);
+        const response = await fetch(`${API_URL}/auth/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || '회원가입에 실패했습니다.');
+        }
+
+        alert('회원가입이 완료되었습니다.');
+        router.replace('/login');
+      } catch (error) {
+        alert(error instanceof Error ? error.message : '회원가입에 실패했습니다.');
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       setCurrentStep(currentStep + 1);
     }
@@ -119,6 +140,7 @@ export default function SignupScreen() {
           onNext={handleNext}
           onPrev={handlePrev}
           currentStep={currentStep}
+          isSubmitting={isSubmitting}
         />
       )}
     </Stack>

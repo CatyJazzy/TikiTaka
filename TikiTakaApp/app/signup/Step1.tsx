@@ -2,25 +2,27 @@ import { YStack, Text, Button, Input, XStack, Stack } from 'tamagui';
 import { Image, ScrollView, Keyboard, KeyboardAvoidingView, Platform, TextInput  } from 'react-native';
 import { SignupStepProps } from './types';
 import { useState, useRef, useCallback } from 'react';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-console.log(API_URL);
+import { API_URL } from '../../constants';
 
 const sendVerificationEmail = async (email: string) => {
-  const response = await fetch(`${API_URL}/auth/send-verification`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email }),
-  });
+  try {
+    const response = await fetch(`${API_URL}/auth/send-verification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || '인증 코드 전송에 실패했습니다.');
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '인증 코드 전송에 실패했습니다.');
+    }
+
+    return response.json();
+  } catch (error) {
+    throw error;
   }
-
-  return response.json();
 };
 
 const verifyEmailCode = async (email: string, code: string) => {

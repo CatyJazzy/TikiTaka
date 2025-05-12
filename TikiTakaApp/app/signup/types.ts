@@ -23,5 +23,5 @@ export interface SignupStepProps {
   onUpdate: (data: Partial<SignupFormData>) => void;
   onNext: () => void;
   onPrev: () => void;
-  currentStep: number;
+  isSubmitting?: boolean;
 } 
