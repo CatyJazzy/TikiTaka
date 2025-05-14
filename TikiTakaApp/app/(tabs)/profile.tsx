@@ -23,7 +23,7 @@ export default function ProfileScreen() {
         
         <Stack alignItems="center" space="$2">
           <Image
-            source={require('../../assets/tiger2.png')}
+            source={require('../../assets/Tiger3.png')}
             width={120}
             height={120}
             borderRadius={60}
