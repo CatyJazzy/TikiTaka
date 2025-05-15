@@ -1,12 +1,12 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
-import { AuthProvider } from '../contexts/AuthContext';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -42,18 +42,33 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
 }
 
 function RootLayoutNav() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    const current = '/' + segments.join('/');
+    // 인증이 필요한 경우에만 로그인 페이지로 리다이렉트
+    if (current !== '/login' && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [isAuthenticated, segments]);
+
   return (
-    <AuthProvider>
-      <TamaguiProvider config={config}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack>
-      </TamaguiProvider>
-    </AuthProvider>
+    <TamaguiProvider config={config}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+      </Stack>
+    </TamaguiProvider>
   );
 }

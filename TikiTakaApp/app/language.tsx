@@ -1,8 +1,15 @@
 import { Stack, Text, Button, YStack, XStack } from 'tamagui';
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 
 export default function LanguageScreen() {
   const [selected, setSelected] = useState('ko');
+  const router = useRouter();
+
+  const handleSelect = (lang: string) => {
+    setSelected(lang);
+    router.replace('/login');
+  };
 
   return (
     <Stack flex={1} alignItems="center" justifyContent="center" backgroundColor="rgba(255,255,240,0.3)">
@@ -19,7 +26,7 @@ export default function LanguageScreen() {
             color="$gray12"
             borderWidth={1}
             borderColor={selected === 'ko' ? '$yellow8' : '$gray6'}
-            onPress={() => setSelected('ko')}
+            onPress={() => handleSelect('ko')}
           >
             한국어
           </Button>
@@ -28,7 +35,7 @@ export default function LanguageScreen() {
             color="$gray12"
             borderWidth={1}
             borderColor={selected === 'en' ? '$yellow8' : '$gray6'}
-            onPress={() => setSelected('en')}
+            onPress={() => handleSelect('en')}
           >
             English
           </Button>
