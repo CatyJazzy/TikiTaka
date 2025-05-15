@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
+import { AuthProvider } from '../contexts/AuthContext';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,11 +47,13 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   return (
-    <TamaguiProvider config={config}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </TamaguiProvider>
+    <AuthProvider>
+      <TamaguiProvider config={config}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+      </TamaguiProvider>
+    </AuthProvider>
   );
 }
