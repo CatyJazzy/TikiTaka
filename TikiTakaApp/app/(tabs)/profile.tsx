@@ -115,7 +115,7 @@ export default function ProfileScreen() {
         
         <Stack alignItems="center" space="$2">
           <Image
-            source={userData.profileImage ? { uri: userData.profileImage } : require('../../assets/tiger2.png')}
+            source={userData.profileImage ? { uri: userData.profileImage } : require('../../assets/Tiger3.png')}
             width={120}
             height={120}
             borderRadius={60}
