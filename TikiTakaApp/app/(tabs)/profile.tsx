@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
-import { Stack, Text, Button, Input, YStack, Select, Image } from 'tamagui';
+import { Alert, Platform, Modal, TouchableOpacity, View } from 'react-native';
+import { Stack, Text, Button, Input, YStack, Image } from 'tamagui';
 
 export default function ProfileScreen() {
   const [name, setName] = useState('');
@@ -8,6 +8,13 @@ export default function ProfileScreen() {
   const [gender, setGender] = useState('');
   const [language, setLanguage] = useState('');
   const [activity, setActivity] = useState('');
+  const [isGenderModalVisible, setIsGenderModalVisible] = useState(false);
+
+  const genderOptions = [
+    { label: '남성', value: 'male' },
+    { label: '여성', value: 'female' },
+    { label: '기타', value: 'other' }
+  ];
 
   const handleLogout = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
@@ -50,28 +57,71 @@ export default function ProfileScreen() {
 
         <YStack space="$2">
           <Text>성별</Text>
-          <Select value={gender} onValueChange={setGender}>
-            <Select.Trigger>
-              <Select.Value placeholder="성별을 선택하세요" />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.ScrollUpButton />
-              <Select.Viewport>
-                <Select.Group>
-                  <Select.Item index={0} value="male">
-                    <Select.ItemText>남성</Select.ItemText>
-                  </Select.Item>
-                  <Select.Item index={1} value="female">
-                    <Select.ItemText>여성</Select.ItemText>
-                  </Select.Item>
-                  <Select.Item index={2} value="other">
-                    <Select.ItemText>기타</Select.ItemText>
-                  </Select.Item>
-                </Select.Group>
-              </Select.Viewport>
-              <Select.ScrollDownButton />
-            </Select.Content>
-          </Select>
+          <TouchableOpacity
+            onPress={() => setIsGenderModalVisible(true)}
+            style={{
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 4,
+              height: 50,
+              justifyContent: 'center',
+              paddingLeft: 12,
+              backgroundColor: 'white'
+            }}
+          >
+            <Text color={gender ? 'black' : '#666'}>
+              {gender ? genderOptions.find(opt => opt.value === gender)?.label : '성별을 선택하세요'}
+            </Text>
+          </TouchableOpacity>
+
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={isGenderModalVisible}
+            onRequestClose={() => setIsGenderModalVisible(false)}
+          >
+            <View style={{
+              flex: 1,
+              justifyContent: 'flex-end',
+              backgroundColor: 'rgba(0,0,0,0.5)'
+            }}>
+              <View style={{
+                backgroundColor: 'white',
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                padding: 20
+              }}>
+                {genderOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    onPress={() => {
+                      setGender(option.value);
+                      setIsGenderModalVisible(false);
+                    }}
+                    style={{
+                      padding: 15,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#eee'
+                    }}
+                  >
+                    <Text>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  onPress={() => setIsGenderModalVisible(false)}
+                  style={{
+                    padding: 15,
+                    marginTop: 10,
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: 8,
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text>취소</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </YStack>
 
         <YStack space="$2">
