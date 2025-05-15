@@ -5,11 +5,11 @@ import cors from 'cors';
 import { networkInterfaces } from 'os';
 
 const app = express();
-const PORT = Number(process.env.PORT) || 4000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // CORS 설정
 app.use(cors({
-  origin: ['http://localhost:8081', 'http://localhost:19006'],
+  origin: '*', // 개발 환경에서는 모든 origin 허용
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 });
 
 // 인증 라우터 등록
-app.use('/api/auth', authRouter);
+app.use('/auth', authRouter);
 
 // 서버 시작
 connectDB().then(() => {

@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 import { EmailVerification } from '../models/EmailVerification';
 import { User } from '../models/User';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 // 이메일 전송을 위한 transporter 설정
 const transporter = nodemailer.createTransport({
@@ -191,4 +193,57 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     console.error('회원가입 중 오류 발생:', error);
     res.status(500).json({ message: '회원가입에 실패했습니다.' });
   }
-}; 
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    // 이메일로 사용자 찾기
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: '이메일 또는 비밀번호가 올바르지 않습니다.' });
+    }
+
+    // 비밀번호 확인
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: '이메일 또는 비밀번호가 올바르지 않습니다.' });
+    }
+
+    // JWT 토큰 생성
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name
+      }
+    });
+  } catch (error) {
+    console.error('로그인 에러:', error);
+    res.status(500).json({ message: '로그인 중 오류가 발생했습니다.' });
+  }
+};
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('사용자 정보 조회 중 오류 발생:', error);
+    res.status(500).json({ message: '사용자 정보를 가져오는데 실패했습니다.' });
+  }
+};
