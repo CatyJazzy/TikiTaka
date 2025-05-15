@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { Stack, Text, Button, Input, YStack, Select, Image, XStack } from 'tamagui';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../constants';
 
 interface UserData {
@@ -109,110 +108,112 @@ export default function ProfileScreen() {
   }
 
   return (
-    <YStack flex={1} padding="$4" space="$4" paddingTop="$8" backgroundColor="rgba(255, 255, 240, 0.3)">
-      <Stack space="$4">
-        <Text fontSize="$6" fontWeight="bold" textAlign="center">프로필</Text>
-        
-        <Stack alignItems="center" space="$2">
-          <Image
-            source={userData.profileImage ? { uri: userData.profileImage } : require('../../assets/Tiger3.png')}
-            width={120}
-            height={120}
-            borderRadius={60}
-          />
-        </Stack>
+    <ScrollView style={{ flex: 1 }}>
+      <YStack flex={1} padding="$4" space="$4" paddingTop="$8" backgroundColor="rgba(255, 255, 240, 0.3)">
+        <Stack space="$4">
+          <Text fontSize="$6" fontWeight="bold" textAlign="center">프로필</Text>
+          
+          <Stack alignItems="center" space="$2">
+            <Image
+              source={userData.profileImage ? { uri: userData.profileImage } : require('../../assets/Tiger3.png')}
+              width={120}
+              height={120}
+              borderRadius={60}
+            />
+          </Stack>
 
-        <YStack space="$2">
-          <Text>이름</Text>
-          <Input
-            value={userData.name}
-            disabled
-            placeholder="이름"
-          />
-        </YStack>
-
-        <YStack space="$2">
-          <Text>이메일</Text>
-          <Input
-            value={userData.email}
-            disabled
-            placeholder="이메일"
-          />
-        </YStack>
-
-        <YStack space="$2">
-          <Text>생년월일</Text>
-          <Input
-            value={`${userData.birthYear}년 ${userData.birthMonth}월 ${userData.birthDay}일`}
-            disabled
-            placeholder="생년월일"
-          />
-        </YStack>
-
-        <YStack space="$2">
-          <Text>성별</Text>
-          <Input
-            value={userData.gender === 'other' ? userData.otherGender : userData.gender}
-            disabled
-            placeholder="성별"
-          />
-        </YStack>
-
-        <YStack space="$2">
-          <Text>주 사용 언어</Text>
-          <Input
-            value={userData.primaryLanguage}
-            disabled
-            placeholder="주 사용 언어"
-          />
-        </YStack>
-
-        <YStack space="$2">
-          <Text>목표 언어</Text>
-          <Input
-            value={userData.targetLanguage}
-            disabled
-            placeholder="목표 언어"
-          />
-        </YStack>
-
-        <YStack space="$2">
-          <Text>영어 가능 여부</Text>
-          <Input
-            value={userData.canSpeakEnglish ? '가능' : '불가능'}
-            disabled
-            placeholder="영어 가능 여부"
-          />
-        </YStack>
-
-        <YStack space="$2">
-          <Text>관심 활동</Text>
-          <Input
-            value={userData.activities.join(', ')}
-            disabled
-            placeholder="관심 활동"
-          />
-        </YStack>
-
-        {userData.otherActivity && (
           <YStack space="$2">
-            <Text>기타 활동</Text>
+            <Text>이름</Text>
             <Input
-              value={userData.otherActivity}
+              value={userData.name}
               disabled
-              placeholder="기타 활동"
+              placeholder="이름"
             />
           </YStack>
-        )}
 
-        <Button 
-          marginTop="$6" 
-          theme="red" 
-          onPress={handleLogout}
-        >
-          로그아웃
-        </Button>
-      </Stack>
-    </YStack>
+          <YStack space="$2">
+            <Text>이메일</Text>
+            <Input
+              value={userData.email}
+              disabled
+              placeholder="이메일"
+            />
+          </YStack>
+
+          <YStack space="$2">
+            <Text>생년월일</Text>
+            <Input
+              value={`${userData.birthYear}년 ${userData.birthMonth}월 ${userData.birthDay}일`}
+              disabled
+              placeholder="생년월일"
+            />
+          </YStack>
+
+          <YStack space="$2">
+            <Text>성별</Text>
+            <Input
+              value={userData.gender === 'other' ? userData.otherGender : userData.gender}
+              disabled
+              placeholder="성별"
+            />
+          </YStack>
+
+          <YStack space="$2">
+            <Text>주 사용 언어</Text>
+            <Input
+              value={userData.primaryLanguage}
+              disabled
+              placeholder="주 사용 언어"
+            />
+          </YStack>
+
+          <YStack space="$2">
+            <Text>목표 언어</Text>
+            <Input
+              value={userData.targetLanguage}
+              disabled
+              placeholder="목표 언어"
+            />
+          </YStack>
+
+          <YStack space="$2">
+            <Text>영어 가능 여부</Text>
+            <Input
+              value={userData.canSpeakEnglish ? '가능' : '불가능'}
+              disabled
+              placeholder="영어 가능 여부"
+            />
+          </YStack>
+
+          <YStack space="$2">
+            <Text>관심 활동</Text>
+            <Input
+              value={userData.activities.join(', ')}
+              disabled
+              placeholder="관심 활동"
+            />
+          </YStack>
+
+          {userData.otherActivity && (
+            <YStack space="$2">
+              <Text>기타 활동</Text>
+              <Input
+                value={userData.otherActivity}
+                disabled
+                placeholder="기타 활동"
+              />
+            </YStack>
+          )}
+
+          <Button 
+            marginTop="$6" 
+            theme="red" 
+            onPress={handleLogout}
+          >
+            로그아웃
+          </Button>
+        </Stack>
+      </YStack>
+    </ScrollView>
   );
 }

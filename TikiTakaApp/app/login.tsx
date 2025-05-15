@@ -110,35 +110,11 @@ export default function LoginScreen() {
               <Text
                 color="rgb(220, 20, 60)"
                 onPress={() => {
-                  // TODO: 회원가입 화면으로 이동
-                  console.log('회원가입 화면으로 이동');
+                  router.replace('/signup');
                 }}
               >
                 회원가입
               </Text>
-            </XStack>
-            <Text textAlign="center" marginTop={12} marginBottom={4} color="$gray10">
-              언어를 선택해주세요
-            </Text>
-            <XStack justifyContent="center" space="$4">
-              <Button
-                size="$3"
-                backgroundColor="$yellow4"
-                color="$gray12"
-                borderWidth={1}
-                borderColor="$yellow8"
-                >
-                한국어
-              </Button>
-              <Button
-                size="$3"
-                backgroundColor="$gray2"
-                color="$gray12"
-                borderWidth={1}
-                borderColor="$gray6"
-                >
-                English
-              </Button>
             </XStack>
           </YStack>
         </Stack>
