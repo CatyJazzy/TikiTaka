@@ -25,21 +25,6 @@ export default function Quest2Screen() {
           height={50}
           borderRadius={10}
           onPress={() => {
-            router.push('/quest');
-          }}
-        >
-          <Text color="white" fontSize="$5" fontWeight="bold">
-            카페 투어 함께 가기
-          </Text>
-        </Button>
-
-        <Button
-          size="$5"
-          backgroundColor="#FFB74D"
-          width="100%"
-          height={50}
-          borderRadius={10}
-          onPress={() => {
             router.back();
           }}
         >

@@ -110,7 +110,7 @@ export default function LoginScreen() {
               <Text
                 color="rgb(220, 20, 60)"
                 onPress={() => {
-                  router.replace('/signup');
+                  router.push('/signup');
                 }}
               >
                 회원가입
