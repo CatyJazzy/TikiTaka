@@ -59,6 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (newToken: string) => {
     try {
+      // 개발 환경용 임시 토큰인 경우 검증 건너뛰기
+      if (newToken === 'dev-token') {
+        await AsyncStorage.setItem('token', newToken);
+        setToken(newToken);
+        setIsAuthenticated(true);
+        return;
+      }
+
       const isValid = await validateToken(newToken);
       if (!isValid) {
         throw new Error('유효하지 않은 토큰입니다.');
