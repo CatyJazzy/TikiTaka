@@ -56,8 +56,8 @@ function RootLayoutNav() {
 
   useEffect(() => {
     const current = '/' + segments.join('/');
-    // 인증이 필요한 경우에만 로그인 페이지로 리다이렉트
-    if (current !== '/login' && !isAuthenticated) {
+    // 로그인이나 회원가입 페이지는 인증 체크에서 제외
+    if (current !== '/login' && current !== '/signup' && !isAuthenticated) {
       router.replace('/login');
     }
   }, [isAuthenticated, segments]);
@@ -68,6 +68,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="signup" options={{ headerShown: false }} />
       </Stack>
     </TamaguiProvider>
   );
