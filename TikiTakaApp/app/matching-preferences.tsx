@@ -48,7 +48,7 @@ export default function MatchingPreferencesScreen() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/auth/me/preferences`, {
+      const response = await fetch(`${API_URL}/matching/preferences`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -67,9 +67,8 @@ export default function MatchingPreferencesScreen() {
       console.log('설정 저장 응답:', data);
       setHasSetPreferences(true);
 
-      Alert.alert('알림', '설정이 저장되었습니다.', [
-        { text: '확인', onPress: () => router.back() }
-      ]);
+      // 매칭 화면으로 돌아가기 전에 새로운 매칭 결과를 전달
+      router.replace('/(tabs)/matching');
     } catch (error) {
       console.error('설정 저장 중 오류:', error);
       Alert.alert('알림', '저장 중 오류가 발생했습니다.');

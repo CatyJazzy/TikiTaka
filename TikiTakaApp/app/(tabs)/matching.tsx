@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Stack, Text, XStack, YStack, Button, Card, Image } from 'tamagui';
-import { RefreshCw, Settings } from '@tamagui/lucide-icons';
-import { useRouter } from 'expo-router';
+import { Stack, Text, XStack, YStack, Button, Card, Image, Spinner } from 'tamagui';
+import { RefreshCw, Settings, UserPlus } from '@tamagui/lucide-icons';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,18 +10,44 @@ import { API_URL } from '../../constants';
 interface User {
   id: string;
   name: string;
-  image: string;
+  profileImage: string;
   age: number;
-  location: string;
-  interests: string[];
+  gender: string;
+  primaryLanguage: string;
+  targetLanguage: string;
+  activities: string[];
   matchScore: number;
 }
 
 export default function MatchingScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const { token, hasSetPreferences, setHasSetPreferences } = useAuth();
   const [matchedUsers, setMatchedUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchMatches = async () => {
+    if (!token) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/matching`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setMatchedUsers(data);
+      }
+    } catch (error) {
+      console.error('매칭 결과 조회 중 오류:', error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     const checkPreferences = async () => {
@@ -41,6 +67,10 @@ export default function MatchingScreen() {
                                userData.genderPreference !== '' && 
                                userData.priority !== '';
           setHasSetPreferences(hasPreferences);
+          
+          if (hasPreferences) {
+            fetchMatches();
+          }
         }
       } catch (error) {
         console.error('매칭 우선순위 설정 확인 중 오류:', error);
@@ -52,19 +82,33 @@ export default function MatchingScreen() {
     checkPreferences();
   }, [token]);
 
+  // 라우터 파라미터 변경 감지
+  useEffect(() => {
+    if (params.refresh === 'true') {
+      fetchMatches();
+      // 파라미터 제거 대신 router.replace 사용
+      router.replace('/(tabs)/matching');
+    }
+  }, [params]);
+
   const handleRefresh = () => {
-    // TODO: API 호출하여 매칭 결과 갱신
-    console.log('매칭 결과 갱신');
+    setIsRefreshing(true);
+    fetchMatches();
   };
 
   const handlePreferencesPress = () => {
     router.push('/matching-preferences');
   };
 
+  const handleBuddyRequest = async (userId: string) => {
+    // TODO: 버디 신청 API 구현
+    console.log('버디 신청:', userId);
+  };
+
   if (isLoading) {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center">
-        <Text>로딩 중...</Text>
+        <Spinner size="large" color="$blue10" />
       </YStack>
     );
   }
@@ -91,6 +135,7 @@ export default function MatchingScreen() {
                   circular
                   onPress={handleRefresh}
                   theme="active"
+                  disabled={isRefreshing}
                 />
               </XStack>
             </XStack>
@@ -114,21 +159,30 @@ export default function MatchingScreen() {
                 <Card key={user.id} elevate size="$4" bordered>
                   <Card.Header padded>
                     <Image
-                      source={{ uri: user.image }}
+                      source={{ uri: user.profileImage || 'https://via.placeholder.com/300x200' }}
                       width={300}
                       height={200}
                       borderRadius="$4"
                     />
                   </Card.Header>
                   <Card.Footer padded>
-                    <YStack space="$2">
+                    <YStack space="$2" width="100%">
                       <XStack justifyContent="space-between" alignItems="center">
                         <Text fontSize="$6" fontWeight="bold">{user.name}</Text>
                         <Text fontSize="$4" color="$gray11">{user.age}세</Text>
                       </XStack>
-                      <Text fontSize="$4" color="$gray11">{user.location}</Text>
+                      
+                      <YStack space="$1">
+                        <Text fontSize="$4" color="$gray11">
+                          모국어: {user.primaryLanguage}
+                        </Text>
+                        <Text fontSize="$4" color="$gray11">
+                          학습 언어: {user.targetLanguage}
+                        </Text>
+                      </YStack>
+
                       <XStack flexWrap="wrap" space="$2">
-                        {user.interests.map((interest, index) => (
+                        {user.activities.map((activity, index) => (
                           <Text
                             key={index}
                             backgroundColor="$gray5"
@@ -137,17 +191,40 @@ export default function MatchingScreen() {
                             borderRadius="$2"
                             fontSize="$3"
                           >
-                            {interest}
+                            {activity}
                           </Text>
                         ))}
                       </XStack>
-                      <Text fontSize="$4" color="$blue10">
-                        매칭 점수: {user.matchScore}%
-                      </Text>
+
+                      <XStack justifyContent="space-between" alignItems="center">
+                        <Text fontSize="$4" color="$blue10">
+                          매칭 점수: {user.matchScore}%
+                        </Text>
+                        <Button
+                          icon={UserPlus}
+                          theme="active"
+                          onPress={() => handleBuddyRequest(user.id)}
+                        >
+                          버디 신청
+                        </Button>
+                      </XStack>
                     </YStack>
                   </Card.Footer>
                 </Card>
               ))}
+
+              {hasSetPreferences && matchedUsers.length === 0 && (
+                <YStack
+                  backgroundColor="$gray5"
+                  padding="$4"
+                  borderRadius="$4"
+                  alignItems="center"
+                >
+                  <Text color="$gray11" textAlign="center">
+                    아직 매칭된 버디가 없습니다.
+                  </Text>
+                </YStack>
+              )}
             </YStack>
           </Stack>
         </ScrollView>
