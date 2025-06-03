@@ -47,12 +47,137 @@ export const updatePreferences = async (req: AuthRequest, res: Response) => {
       priority: user.priority
     });
 
+    // 현재 사용자 정보 조회
+    const currentUser = await User.findById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    // 성별 선호도에 따른 필터링
+    let genderFilter = {};
+    if (currentUser.genderPreference === 'same') {
+      genderFilter = { gender: currentUser.gender };
+    }
+
+    // 현재 사용자를 제외한 모든 사용자 조회
+    const potentialMatches = await User.find({
+      _id: { $ne: userId },
+      ...genderFilter
+    });
+
+    // 매칭 점수 계산
+    const matchesWithScores: MatchScore[] = potentialMatches.map(match => {
+      let score = 0;
+      let languageScore = 0;
+      let hasLanguageMatch = false;
+      let hasActivityMatch = false;
+
+      // 언어 매칭 점수
+      if (match.targetLanguage === currentUser.targetLanguage) {
+        if (currentUser.priority === 'language') {
+          languageScore += 50;
+        } else {
+          languageScore += 30;
+        }
+        hasLanguageMatch = true;
+      } else {
+        if (match.primaryLanguage === currentUser.targetLanguage) {
+          if (currentUser.priority === 'language') {
+            languageScore += 30;
+          } else {
+            languageScore += 18;
+          }
+          hasLanguageMatch = true;
+        }
+        if (currentUser.primaryLanguage === match.targetLanguage) {
+          if (currentUser.priority === 'language') {
+            languageScore += 20;
+          } else {
+            languageScore += 12;
+          }
+          hasLanguageMatch = true;
+        }
+      }
+      score += languageScore;
+
+      // 활동 매칭 점수
+      const commonActivities = currentUser.activities.filter(activity => 
+        match.activities.includes(activity)
+      );
+      let activityScore = 0;
+      if (commonActivities.length > 0) {
+        if (currentUser.priority === 'language') {
+          activityScore = 30 * commonActivities.length;
+        } else {
+          activityScore = 40 * commonActivities.length;
+        }
+        activityScore = Math.min(activityScore, 100);
+        score += activityScore;
+        hasActivityMatch = true;
+      }
+
+      if (hasLanguageMatch || hasActivityMatch) {
+        score = Math.max(score, 40);
+      }
+
+      const maxScore = languageScore + 100;
+
+      return {
+        user: {
+          id: match._id,
+          name: match.name,
+          age: new Date().getFullYear() - parseInt(match.birthYear),
+          gender: match.gender,
+          primaryLanguage: match.primaryLanguage,
+          targetLanguage: match.targetLanguage,
+          activities: match.activities,
+          profileImage: match.profileImage,
+          canSpeakEnglish: match.canSpeakEnglish
+        },
+        score,
+        maxScore
+      };
+    });
+
+    // 점수순으로 정렬하고 상위 3개 선택
+    let topMatches = matchesWithScores
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(match => ({
+        ...match.user,
+        matchScore: Math.round((match.score / match.maxScore) * 100)
+      }));
+
+    // 매칭된 버디가 없고, 영어 가능 여부가 일치하는 사용자가 있는 경우
+    if (topMatches.length === 0) {
+      const englishMatches = potentialMatches
+        .filter(match => match.canSpeakEnglish === currentUser.canSpeakEnglish)
+        .map(match => ({
+          id: match._id,
+          name: match.name,
+          age: new Date().getFullYear() - parseInt(match.birthYear),
+          gender: match.gender,
+          primaryLanguage: match.primaryLanguage,
+          targetLanguage: match.targetLanguage,
+          activities: match.activities,
+          profileImage: match.profileImage,
+          canSpeakEnglish: match.canSpeakEnglish,
+          matchScore: 30
+        }))
+        .slice(0, 3);
+
+      if (englishMatches.length > 0) {
+        topMatches = englishMatches;
+      }
+    }
+
     res.json({
       message: '매칭 우선순위 설정이 저장되었습니다.',
       preferences: {
         genderPreference: user.genderPreference,
         priority: user.priority,
       },
+      matches: topMatches
     });
   } catch (error) {
     console.error('매칭 우선순위 설정 중 오류 발생:', {
