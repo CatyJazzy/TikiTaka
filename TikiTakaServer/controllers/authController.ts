@@ -247,3 +247,42 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: '사용자 정보를 가져오는데 실패했습니다.' });
   }
 };
+
+// 매칭 우선순위 설정 업데이트
+export const updatePreferences = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId; // 인증 미들웨어에서 user를 req에 추가했다고 가정
+    const { genderPreference, priority } = req.body;
+
+    if (!['same', 'any'].includes(genderPreference)) {
+      return res.status(400).json({ message: 'genderPreference 값이 올바르지 않습니다.' });
+    }
+    if (!['language', 'activity'].includes(priority)) {
+      return res.status(400).json({ message: 'priority 값이 올바르지 않습니다.' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { genderPreference, priority },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    res.json({
+      message: '매칭 우선순위 설정이 저장되었습니다.',
+      preferences: {
+        genderPreference: user.genderPreference,
+        priority: user.priority,
+      },
+    });
+  } catch (error) {
+    console.error('매칭 우선순위 설정 중 오류 발생:', error);
+    res.status(500).json({ 
+      message: '서버 오류', 
+      error: error instanceof Error ? error.message : '알 수 없는 오류'
+    });
+  }
+};

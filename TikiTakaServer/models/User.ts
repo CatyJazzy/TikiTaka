@@ -50,6 +50,16 @@ const userSchema = new mongoose.Schema({
   otherActivity: String,
   profileImage: String,
   portalImage: String,
+  genderPreference: {
+    type: String,
+    enum: ['same', 'any'],
+    default: 'any',
+  },
+  priority: {
+    type: String,
+    enum: ['language', 'activity'],
+    default: 'language',
+  },
   createdAt: {
     type: Date,
     default: Date.now,
