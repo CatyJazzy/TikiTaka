@@ -9,7 +9,7 @@ import { API_URL } from '../constants';
 
 export default function MatchingPreferencesScreen() {
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, setHasSetPreferences } = useAuth();
   const [genderPreference, setGenderPreference] = useState<string>('');
   const [priority, setPriority] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +42,11 @@ export default function MatchingPreferencesScreen() {
   }, []);
 
   const handleSave = async () => {
+    if (!genderPreference || !priority) {
+      Alert.alert('알림', '모든 설정을 완료해주세요.');
+      return;
+    }
+
     try {
       const response = await fetch(`${API_URL}/auth/me/preferences`, {
         method: 'PATCH',
@@ -52,16 +57,21 @@ export default function MatchingPreferencesScreen() {
         body: JSON.stringify({ genderPreference, priority }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         Alert.alert('알림', data.message || '저장에 실패했습니다.');
         return;
       }
+
+      console.log('설정 저장 응답:', data);
+      setHasSetPreferences(true);
 
       Alert.alert('알림', '설정이 저장되었습니다.', [
         { text: '확인', onPress: () => router.back() }
       ]);
     } catch (error) {
+      console.error('설정 저장 중 오류:', error);
       Alert.alert('알림', '저장 중 오류가 발생했습니다.');
     }
   };

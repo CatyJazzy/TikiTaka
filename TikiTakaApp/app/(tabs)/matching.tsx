@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Stack, Text, XStack, YStack, Button, Card, Image } from 'tamagui';
 import { RefreshCw, Settings } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
+import { API_URL } from '../../constants';
 
 interface User {
   id: string;
@@ -17,7 +19,38 @@ interface User {
 
 export default function MatchingScreen() {
   const router = useRouter();
+  const { token, hasSetPreferences, setHasSetPreferences } = useAuth();
   const [matchedUsers, setMatchedUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkPreferences = async () => {
+      if (!token) return;
+      
+      try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          const hasPreferences = userData.genderPreference != null && 
+                               userData.priority != null && 
+                               userData.genderPreference !== '' && 
+                               userData.priority !== '';
+          setHasSetPreferences(hasPreferences);
+        }
+      } catch (error) {
+        console.error('매칭 우선순위 설정 확인 중 오류:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkPreferences();
+  }, [token]);
 
   const handleRefresh = () => {
     // TODO: API 호출하여 매칭 결과 갱신
@@ -27,6 +60,14 @@ export default function MatchingScreen() {
   const handlePreferencesPress = () => {
     router.push('/matching-preferences');
   };
+
+  if (isLoading) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center">
+        <Text>로딩 중...</Text>
+      </YStack>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
@@ -53,6 +94,19 @@ export default function MatchingScreen() {
                 />
               </XStack>
             </XStack>
+
+            {!hasSetPreferences && (
+              <YStack
+                backgroundColor="$blue5"
+                padding="$3"
+                borderRadius="$4"
+                marginBottom="$2"
+              >
+                <Text color="$blue10" textAlign="center">
+                  매칭 기준 우선순위를 상단의 설정 아이콘에서 저장해주세요.
+                </Text>
+              </YStack>
+            )}
 
             {/* 매칭 결과 */}
             <YStack space="$4">
