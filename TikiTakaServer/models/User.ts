@@ -52,13 +52,11 @@ const userSchema = new mongoose.Schema({
   portalImage: String,
   genderPreference: {
     type: String,
-    enum: ['same', 'any'],
-    default: 'any',
+    enum: ['same', 'any']
   },
   priority: {
     type: String,
-    enum: ['language', 'activity'],
-    default: 'language',
+    enum: ['language', 'activity']
   },
   createdAt: {
     type: Date,

@@ -4,6 +4,7 @@ import { EmailVerification } from '../models/EmailVerification';
 import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { AuthRequest } from '../middleware/auth';
 
 // 이메일 전송을 위한 transporter 설정
 const transporter = nodemailer.createTransport({
@@ -232,9 +233,13 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const getCurrentUser = async (req: Request, res: Response) => {
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
+    if (!req.user?.userId) {
+      return res.status(401).json({ message: '인증되지 않은 사용자입니다.' });
+    }
+
+    const userId = req.user.userId;
     const user = await User.findById(userId).select('-password');
     
     if (!user) {
@@ -249,27 +254,50 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 };
 
 // 매칭 우선순위 설정 업데이트
-export const updatePreferences = async (req: Request, res: Response) => {
+export const updatePreferences = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user.userId; // 인증 미들웨어에서 user를 req에 추가했다고 가정
+    if (!req.user?.userId) {
+      return res.status(401).json({ message: '인증되지 않은 사용자입니다.' });
+    }
+
+    const userId = req.user.userId;
     const { genderPreference, priority } = req.body;
 
+    console.log('매칭 우선순위 설정 요청:', {
+      userId,
+      genderPreference,
+      priority
+    });
+
     if (!['same', 'any'].includes(genderPreference)) {
+      console.log('잘못된 genderPreference 값:', genderPreference);
       return res.status(400).json({ message: 'genderPreference 값이 올바르지 않습니다.' });
     }
     if (!['language', 'activity'].includes(priority)) {
+      console.log('잘못된 priority 값:', priority);
       return res.status(400).json({ message: 'priority 값이 올바르지 않습니다.' });
     }
 
     const user = await User.findByIdAndUpdate(
       userId,
       { genderPreference, priority },
-      { new: true }
+      { 
+        new: true,
+        runValidators: true,
+        context: 'query'
+      }
     ).select('-password');
 
     if (!user) {
+      console.log('사용자를 찾을 수 없음:', userId);
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
+
+    console.log('매칭 우선순위 설정 성공:', {
+      userId,
+      genderPreference: user.genderPreference,
+      priority: user.priority
+    });
 
     res.json({
       message: '매칭 우선순위 설정이 저장되었습니다.',
@@ -279,7 +307,11 @@ export const updatePreferences = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('매칭 우선순위 설정 중 오류 발생:', error);
+    console.error('매칭 우선순위 설정 중 오류 발생:', {
+      error: error instanceof Error ? error.message : '알 수 없는 오류',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'UnknownError'
+    });
     res.status(500).json({ 
       message: '서버 오류', 
       error: error instanceof Error ? error.message : '알 수 없는 오류'
