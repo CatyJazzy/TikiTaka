@@ -105,6 +105,19 @@ export default function LoginScreen() {
               {isLoading ? '로그인 중...' : '로그인'}
             </Button>
 
+            <Button
+              onPress={async () => {
+                await login('dev-token');
+                router.replace('/(tabs)');
+              }}
+              backgroundColor="#4CAF50"
+              color="white"
+              size="$5"
+              width="100%"
+            >
+              개발자용 임시 로그인
+            </Button>
+
             <XStack justifyContent="center" space="$2">
               <Text>계정이 없으신가요?</Text>
               <Text

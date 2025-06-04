@@ -1,17 +1,18 @@
 #!/bin/bash
 
-# ipconfig 결과를 줄바꿈 정리해서 저장
-IPCONFIG_OUTPUT=$(ipconfig.exe | tr -d '\r')
-
-# Wi-Fi 어댑터 섹션만 추출
-WIFI_SECTION=$(echo "$IPCONFIG_OUTPUT" | awk '/Wireless LAN adapter Wi-Fi/ {flag=1; next} /^[^ ]/ {flag=0} flag')
-
-# IPv4 주소 추출
-IP_ADDRESS=$(echo "$WIFI_SECTION" | grep -i "IPv4" | awk -F: '{gsub(/ /, "", $2); print $2}')
+# 운영체제 확인
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    # Windows 환경
+    IP_ADDRESS=$(ipconfig | grep "IPv4" | grep -v "127.0.0.1" | awk '{print $NF}')
+else
+    # macOS/Linux 환경
+    IP_ADDRESS=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}')
+fi
 
 # IP 주소가 비어있는지 확인
 if [ -z "$IP_ADDRESS" ]; then
-    echo "Wi-Fi IP 주소를 찾을 수 없습니다. 수동으로 입력해주세요."
+    echo "IP 주소를 찾을 수 없습니다. 수동으로 입력해주세요."
+
     read -p "IP 주소를 입력하세요: " IP_ADDRESS
 fi
 
