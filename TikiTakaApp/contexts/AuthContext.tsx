@@ -5,6 +5,8 @@ import { API_URL } from '../constants';
 interface AuthContextType {
   isAuthenticated: boolean;
   token: string | null;
+  hasSetPreferences: boolean;
+  setHasSetPreferences: (value: boolean) => void;
   login: (token: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -14,6 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [hasSetPreferences, setHasSetPreferences] = useState(false);
 
   const validateToken = async (tokenToValidate: string) => {
     try {
@@ -22,6 +25,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'Authorization': `Bearer ${tokenToValidate}`
         }
       });
+      if (response.ok) {
+        const userData = await response.json();
+        setHasSetPreferences(!!(userData.genderPreference && userData.priority));
+      }
       return response.ok;
     } catch (error) {
       console.error('토큰 검증 중 오류 발생:', error);
@@ -97,7 +104,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, login, logout }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      token, 
+      hasSetPreferences,
+      setHasSetPreferences,
+      login, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
