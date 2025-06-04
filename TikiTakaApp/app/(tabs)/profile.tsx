@@ -18,7 +18,6 @@ interface UserData {
   canSpeakEnglish: boolean;
   activities: string[];
   otherActivity?: string;
-  profileImage?: string;
 }
 
 export default function ProfileScreen() {
@@ -115,7 +114,7 @@ export default function ProfileScreen() {
           
           <Stack alignItems="center" space="$2">
             <Image
-              source={userData.profileImage ? { uri: userData.profileImage } : require('../../assets/Tiger3.png')}
+              source={require('../../assets/Tiger3.png')}
               width={120}
               height={120}
               borderRadius={60}

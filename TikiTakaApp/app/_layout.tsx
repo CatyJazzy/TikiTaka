@@ -56,7 +56,7 @@ function RootLayoutNav() {
 
   useEffect(() => {
     const current = '/' + segments.join('/');
-    // 로그인이나 회원가입 페이지는 인증 체크에서 제외
+    // 인증이 필요한 경우에만 로그인 페이지로 리다이렉트
     if (current !== '/login' && current !== '/signup' && !isAuthenticated) {
       router.replace('/login');
     }

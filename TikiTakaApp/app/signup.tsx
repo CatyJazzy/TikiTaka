@@ -1,6 +1,7 @@
 import { Stack } from 'tamagui';
 import { useState } from 'react';
 import { router } from 'expo-router';
+import { Step0 } from './signup/Step0';
 import { Step1 } from './signup/Step1';
 import { Step2 } from './signup/Step2';
 import { Step3 } from './signup/Step3';
@@ -8,11 +9,12 @@ import { Step4 } from './signup/Step4';
 import { Step5 } from './signup/Step5';
 import { Step6 } from './signup/Step6';
 import { Step7 } from './signup/Step7';
+import { Step8 } from './signup/Step8';
 import { SignupFormData } from './signup/types';
 import { API_URL } from '../constants';
 
 export default function SignupScreen() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<SignupFormData>({
     email: '',
@@ -39,7 +41,7 @@ export default function SignupScreen() {
   };
 
   const handleNext = async () => {
-    if (currentStep === 7) {
+    if (currentStep === 8) {
       try {
         setIsSubmitting(true);
         const response = await fetch(`${API_URL}/auth/signup`, {
@@ -68,7 +70,11 @@ export default function SignupScreen() {
   };
 
   const handlePrev = () => {
-    setCurrentStep(currentStep - 1);
+    if (currentStep === 0) {
+      router.back();
+    } else {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
   return (
@@ -79,13 +85,20 @@ export default function SignupScreen() {
       padding="$4"
       backgroundColor="rgba(255, 255, 240, 0.3)"
     >
+      {currentStep === 0 && (
+        <Step0
+          formData={formData}
+          onUpdate={handleUpdate}
+          onNext={handleNext}
+          onPrev={handlePrev}
+        />
+      )}
       {currentStep === 1 && (
         <Step1
           formData={formData}
           onUpdate={handleUpdate}
           onNext={handleNext}
           onPrev={handlePrev}
-          currentStep={currentStep}
         />
       )}
       {currentStep === 2 && (
@@ -94,7 +107,6 @@ export default function SignupScreen() {
           onUpdate={handleUpdate}
           onNext={handleNext}
           onPrev={handlePrev}
-          currentStep={currentStep}
         />
       )}
       {currentStep === 3 && (
@@ -103,7 +115,6 @@ export default function SignupScreen() {
           onUpdate={handleUpdate}
           onNext={handleNext}
           onPrev={handlePrev}
-          currentStep={currentStep}
         />
       )}
       {currentStep === 4 && (
@@ -112,7 +123,6 @@ export default function SignupScreen() {
           onUpdate={handleUpdate}
           onNext={handleNext}
           onPrev={handlePrev}
-          currentStep={currentStep}
         />
       )}
       {currentStep === 5 && (
@@ -121,7 +131,6 @@ export default function SignupScreen() {
           onUpdate={handleUpdate}
           onNext={handleNext}
           onPrev={handlePrev}
-          currentStep={currentStep}
         />
       )}
       {currentStep === 6 && (
@@ -130,7 +139,6 @@ export default function SignupScreen() {
           onUpdate={handleUpdate}
           onNext={handleNext}
           onPrev={handlePrev}
-          currentStep={currentStep}
         />
       )}
       {currentStep === 7 && (
@@ -139,7 +147,14 @@ export default function SignupScreen() {
           onUpdate={handleUpdate}
           onNext={handleNext}
           onPrev={handlePrev}
-          currentStep={currentStep}
+        />
+      )}
+      {currentStep === 8 && (
+        <Step8
+          formData={formData}
+          onUpdate={handleUpdate}
+          onNext={handleNext}
+          onPrev={handlePrev}
           isSubmitting={isSubmitting}
         />
       )}
