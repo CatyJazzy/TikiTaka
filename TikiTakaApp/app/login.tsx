@@ -122,16 +122,16 @@ export default function LoginScreen() {
             </Button>
 
             <Button
-              onPress={() => {
+              onPress={async () => {
+                await login('dev-token');
                 router.replace('/(tabs)');
               }}
-              backgroundColor="rgb(100,100,100)"
-              color="$gray12"
+              backgroundColor="#4CAF50"
+              color="white"
               size="$5"
               width="100%"
-              marginTop="$2"
             >
-              개발자용
+              개발자용 임시 로그인
             </Button>
 
             <XStack justifyContent="center" space="$2">

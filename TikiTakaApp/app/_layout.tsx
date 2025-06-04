@@ -56,7 +56,7 @@ function RootLayoutNav() {
 
   useEffect(() => {
     const current = '/' + segments.join('/');
-    // 로그인이나 회원가입 페이지는 인증 체크에서 제외
+    // 인증이 필요한 경우에만 로그인 페이지로 리다이렉트
     if (current !== '/login' && current !== '/signup' && !isAuthenticated) {
       // 개발자용 버튼으로 진입한 경우 모든 탭과 퀘스트 페이지 접근 허용
       if (segments[0] === '(tabs)' || segments[0] === 'study' || segments[0] === 'cafe-tour') {
