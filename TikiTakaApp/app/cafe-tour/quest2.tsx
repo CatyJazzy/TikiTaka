@@ -12,9 +12,24 @@ export default function Quest2Screen() {
         </Text>
 
         <Stack padding="$4" backgroundColor="white" borderRadius={10} space="$4">
-          <Text fontSize="$5" lineHeight={24}>
-            - 각자 좋아하는 카페 메뉴를 공유하고, 서로의 취향을 알아보세요.{'\n'}
+          <Text fontSize="$5" lineHeight={32}>
+            - 각자 좋아하는 카페 메뉴를 공유하고, 서로의 취향을 알아보세요.{'\n\n'}
             - 메뉴 이름과 이유를 설명해주세요.
+          </Text>
+        </Stack>
+
+        <Text fontSize="$6" fontWeight="bold" textAlign="center" marginTop="$4" marginBottom="$4">
+          카페 취향 밸런스 게임
+        </Text>
+
+        <Stack padding="$4" backgroundColor="white" borderRadius={10} space="$4">
+          <Text fontSize="$5" lineHeight={32}>
+            - 한옥카페 vs 신식카페{'\n\n'}
+            - 조용한 분위기 vs 신나는 음악{'\n\n'}
+            - 카페의 새로운 시그니쳐 메뉴 도전 vs 늘 먹던 메뉴{'\n\n'}
+            - 아아 vs 뜨아{'\n\n'}
+            - 깔끔한 감성 카페 vs 따뜻한 감성 카페{'\n\n'}
+            - 프렌차이즈 카페 vs 개인 카페
           </Text>
         </Stack>
 

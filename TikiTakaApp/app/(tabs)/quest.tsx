@@ -34,7 +34,7 @@ export default function QuestScreen() {
             height={80}
             borderRadius={10}
             onPress={() => {
-              router.push('/quest2');
+              router.push('/study');
             }}
           >
             <Text color="white" fontSize="$5" fontWeight="bold" textAlign="center">
