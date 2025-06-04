@@ -63,7 +63,6 @@ export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: Sign
           color="$gray12"
           size="$4"
           flex={1}
-          disabled={isSubmitting}
         >
           이전
         </Button>
@@ -74,6 +73,7 @@ export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: Sign
           size="$4"
           flex={1}
           disabled={isSubmitting}
+          opacity={isSubmitting ? 0.5 : 1}
         >
           {isSubmitting ? '처리 중...' : '회원가입 완료'}
         </Button>
