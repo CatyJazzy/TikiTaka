@@ -120,7 +120,7 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
       >
         <YStack space="$4" width="100%" maxWidth={480} alignItems="center" paddingVertical="$4">
           <Image
-            source={require('../../assets/tiger.png')}
+            source={require('../../assets/Tiger3.png')}
             style={{ width: 120, height: 120, marginBottom: 8 }}
             resizeMode="contain"
           />
