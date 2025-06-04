@@ -58,6 +58,10 @@ function RootLayoutNav() {
     const current = '/' + segments.join('/');
     // 로그인이나 회원가입 페이지는 인증 체크에서 제외
     if (current !== '/login' && current !== '/signup' && !isAuthenticated) {
+      // 개발자용 버튼으로 진입한 경우 모든 탭과 퀘스트 페이지 접근 허용
+      if (segments[0] === '(tabs)' || segments[0] === 'study' || segments[0] === 'cafe-tour') {
+        return;
+      }
       router.replace('/login');
     }
   }, [isAuthenticated, segments]);
@@ -69,6 +73,12 @@ function RootLayoutNav() {
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="signup" options={{ headerShown: false }} />
+        <Stack.Screen name="study" options={{ headerShown: false }} />
+        <Stack.Screen name="study/quest1" options={{ headerShown: false }} />
+        <Stack.Screen name="study/quest2" options={{ headerShown: false }} />
+        <Stack.Screen name="study/quest3" options={{ headerShown: false }} />
+        <Stack.Screen name="study/quest4" options={{ headerShown: false }} />
+        <Stack.Screen name="study/quest5" options={{ headerShown: false }} />
       </Stack>
     </TamaguiProvider>
   );

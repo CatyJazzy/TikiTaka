@@ -19,6 +19,8 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     try {
+      console.log('로그인 시도:', { email, API_URL });
+      
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -27,23 +29,37 @@ export default function LoginScreen() {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('서버 응답 상태:', response.status);
+      console.log('서버 응답 헤더:', response.headers);
+
       const data = await response.json();
+      console.log('서버 응답 데이터:', data);
 
       if (!response.ok) {
+        console.error('로그인 실패:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        });
         throw new Error(data.message || '로그인에 실패했습니다.');
       }
 
       if (!data.token) {
+        console.error('토큰 누락:', data);
         throw new Error('서버에서 토큰을 받지 못했습니다.');
       }
 
-      console.log('로그인 응답:', data);
+      console.log('로그인 성공:', { token: data.token.substring(0, 10) + '...' });
       await login(data.token);
       
-      // 로그인 성공 후 홈 화면으로 이동
       router.replace('/(tabs)');
     } catch (error) {
-      console.error('로그인 에러:', error);
+      console.error('로그인 에러 상세:', {
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        API_URL,
+        email
+      });
       alert(error instanceof Error ? error.message : '로그인에 실패했습니다.');
     } finally {
       setIsLoading(false);
@@ -103,6 +119,19 @@ export default function LoginScreen() {
               opacity={isLoading ? 0.5 : 1}
             >
               {isLoading ? '로그인 중...' : '로그인'}
+            </Button>
+
+            <Button
+              onPress={() => {
+                router.replace('/(tabs)');
+              }}
+              backgroundColor="rgb(100,100,100)"
+              color="$gray12"
+              size="$5"
+              width="100%"
+              marginTop="$2"
+            >
+              개발자용
             </Button>
 
             <XStack justifyContent="center" space="$2">

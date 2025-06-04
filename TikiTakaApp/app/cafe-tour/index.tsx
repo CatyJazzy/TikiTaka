@@ -4,6 +4,29 @@ import { useRouter } from 'expo-router';
 export default function CafeTourIndexScreen() {
   const router = useRouter();
 
+  const quests = [
+    {
+      title: "퀘스트1\n서로의 최애 카페 공유하기",
+      route: "/cafe-tour/quest1"
+    },
+    {
+      title: "퀘스트2\n서로의 최애 카페 스타일 공유하기",
+      route: "/cafe-tour/quest2"
+    },
+    {
+      title: "퀘스트3\n카페 고수 대결",
+      route: "/cafe-tour/quest3"
+    },
+    {
+      title: "퀘스트4\n카페 포토 미션",
+      route: "/cafe-tour/quest4"
+    },
+    {
+      title: "퀘스트5\nBEST 카페 선정",
+      route: "/cafe-tour/quest5"
+    }
+  ];
+
   return (
     <Stack flex={1} backgroundColor="#FFF8E7">
       <ScrollView padding="$4" space="$4">
@@ -12,20 +35,20 @@ export default function CafeTourIndexScreen() {
         </Text>
 
         <Stack marginTop="$2" space="$4">
-          {[1, 2, 3, 4, 5].map((num) => (
+          {quests.map((quest, index) => (
             <Button
-              key={num}
+              key={index}
               size="$5"
               backgroundColor="#FFB74D"
               width="100%"
               height={80}
               borderRadius={10}
               onPress={() => {
-                router.push(`/cafe-tour/quest${num}`);
+                router.push(quest.route);
               }}
             >
               <Text color="white" fontSize="$5" fontWeight="bold" textAlign="center">
-                카페 투어 퀘스트 {num} ☕️
+                {quest.title} ☕️
               </Text>
             </Button>
           ))}
