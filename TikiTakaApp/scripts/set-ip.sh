@@ -17,6 +17,6 @@ if [ -z "$IP_ADDRESS" ]; then
 fi
 
 # .env 파일 생성 또는 업데이트 (TikiTakaApp 루트 디렉토리에)
-echo "EXPO_PUBLIC_API_URL=http://${IP_ADDRESS}:3000" > ../.env
+echo "EXPO_PUBLIC_API_URL=http://${IP_ADDRESS}:3000" > .env
 
 echo "IP 주소가 .env 파일에 설정되었습니다: ${IP_ADDRESS}"
