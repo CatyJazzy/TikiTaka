@@ -101,8 +101,38 @@ export default function MatchingScreen() {
   };
 
   const handleBuddyRequest = async (userId: string) => {
-    // TODO: 버디 신청 API 구현
-    console.log('버디 신청:', userId);
+    try {
+      console.log('친구 신청 API 호출:', `${API_URL}/friend-requests/send`);
+      console.log('토큰:', token);
+      console.log('요청 데이터:', { receiverId: userId });
+
+      const response = await fetch(`${API_URL}/friend-requests/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ receiverId: userId })
+      });
+
+      console.log('응답 상태:', response.status);
+      const responseText = await response.text();
+      console.log('응답 내용:', responseText);
+
+      if (response.ok) {
+        alert('친구 신청이 전송되었습니다.');
+      } else {
+        try {
+          const data = JSON.parse(responseText);
+          alert(data.message || '친구 신청 전송에 실패했습니다.');
+        } catch (e) {
+          alert('친구 신청 전송에 실패했습니다.');
+        }
+      }
+    } catch (error) {
+      console.error('친구 신청 오류:', error);
+      alert('친구 신청 전송 중 오류가 발생했습니다.');
+    }
   };
 
   if (isLoading) {
@@ -203,6 +233,7 @@ export default function MatchingScreen() {
                         <Button
                           icon={UserPlus}
                           theme="active"
+                          backgroundColor="rgb(255,191,84)"
                           onPress={() => handleBuddyRequest(user.id)}
                         >
                           버디 신청

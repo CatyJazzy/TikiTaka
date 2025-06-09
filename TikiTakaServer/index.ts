@@ -2,8 +2,10 @@ import express from 'express';
 import { connectDB } from './db';
 import authRouter from './routes/auth';
 import matchingRouter from './routes/matching';
+import friendRequestRouter from './routes/friendRequest';
 import cors from 'cors';
 import { networkInterfaces } from 'os';
+import userRouter from './routes/user';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -26,6 +28,10 @@ app.get('/', (req, res) => {
 app.use('/auth', authRouter);
 // 매칭 라우터 등록
 app.use('/matching', matchingRouter);
+// 친구 신청 라우터 등록
+app.use('/friend-requests', friendRequestRouter);
+// 사용자 라우터 등록
+app.use('/api/users', userRouter);
 
 // 서버 시작
 connectDB().then(() => {
