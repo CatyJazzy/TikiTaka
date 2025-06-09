@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Stack, Text, XStack, YStack, Card, Spinner, Button, Image } from 'tamagui';
+import { Stack, Text, XStack, YStack, Card, Spinner, Button, Image, Sheet } from 'tamagui';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { API_URL } from '../../constants';
@@ -36,6 +36,134 @@ interface Buddy {
   matchedAt: string;
 }
 
+interface UserProfile {
+  _id: string;
+  name: string;
+  profileImage: string;
+  age: number;
+  bio: string;
+  preferredActivities: string[];
+  languages: string[];
+  activities: string[];
+  primaryLanguage: string;
+  targetLanguage: string;
+}
+
+interface ProfilePopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  profile: UserProfile | null;
+}
+
+const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
+  if (!profile) return null;
+
+  return (
+    <Sheet
+      modal
+      open={isOpen}
+      onOpenChange={onClose}
+      snapPoints={[85]}
+      dismissOnSnapToBottom
+    >
+      <Sheet.Overlay />
+      <Sheet.Frame padding="$4" space="$4">
+        <Sheet.Handle />
+        <XStack justifyContent="space-between" alignItems="center">
+          <Text fontSize="$6" fontWeight="bold" marginBottom="$2">프로필 정보</Text>
+          <Button
+            icon={X}
+            circular
+            size="$3"
+            onPress={onClose}
+          />
+        </XStack>
+        
+        <XStack space="$4" alignItems="center">
+          <Image
+            source={{ uri: profile.profileImage || 'https://via.placeholder.com/100' }}
+            width={100}
+            height={100}
+            borderRadius={50}
+          />
+          <YStack space="$2">
+            <Text fontSize="$6" fontWeight="bold">{profile.name}</Text>
+            <Text fontSize="$4" color="$gray11">{profile.age}세</Text>
+          </YStack>
+        </XStack>
+
+        <Card bordered margin="$2">
+          <Card.Header padded>
+            <Text fontSize="$5" fontWeight="bold">자기소개</Text>
+          </Card.Header>
+          <Card.Footer padded>
+            <Text fontSize="$4">{profile.bio || '자기소개가 없습니다.'}</Text>
+          </Card.Footer>
+        </Card>
+
+        <Card bordered margin="$2">
+          <Card.Header padded>
+            <Text fontSize="$5" fontWeight="bold">선호 활동</Text>
+          </Card.Header>
+          <Card.Footer padded>
+            <XStack flexWrap="wrap" space="$2">
+              {profile.activities?.map((activity, index) => (
+                <Text
+                  key={index}
+                  fontSize="$3"
+                  backgroundColor="$blue5"
+                  color="$blue11"
+                  paddingHorizontal="$2"
+                  paddingVertical="$1"
+                  borderRadius="$2"
+                >
+                  {activity}
+                </Text>
+              ))}
+            </XStack>
+          </Card.Footer>
+        </Card>
+
+        <Card bordered margin="$2">
+          <Card.Header padded>
+            <Text fontSize="$5" fontWeight="bold">언어 사용 및 선호</Text>
+          </Card.Header>
+          <Card.Footer padded>
+            <YStack space="$2">
+              <XStack space="$2" alignItems="center">
+                <Text fontSize="$4" color="$gray11">모국어:</Text>
+                <Text
+                  fontSize="$3"
+                  backgroundColor="$green5"
+                  color="$green11"
+                  paddingHorizontal="$2"
+                  paddingVertical="$1"
+                  borderRadius="$2"
+                >
+                  {profile.primaryLanguage}
+                </Text>
+              </XStack>
+              <XStack space="$2" alignItems="center">
+                <Text fontSize="$4" color="$gray11">교류 희망 언어:</Text>
+                <Text
+                  fontSize="$3"
+                  backgroundColor="$blue5"
+                  color="$blue11"
+                  paddingHorizontal="$2"
+                  paddingVertical="$1"
+                  borderRadius="$2"
+                >
+                  {profile.targetLanguage}
+                </Text>
+              </XStack>
+            </YStack>
+          </Card.Footer>
+        </Card>
+      </Sheet.Frame>
+    </Sheet>
+  );
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const { token } = useAuth();
@@ -44,6 +172,8 @@ export default function HomeScreen() {
   const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
   const [acceptedBuddies, setAcceptedBuddies] = useState<Buddy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null);
+  const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
 
   const fetchMatchingStats = useCallback(async () => {
     if (!token) return;
@@ -156,6 +286,43 @@ export default function HomeScreen() {
     }
   };
 
+  const handleProfileClick = async (userId: string) => {
+    if (!token) {
+      console.error('토큰이 없습니다.');
+      return;
+    }
+
+    try {
+      console.log('프로필 조회 시작:', userId);
+      console.log('API URL:', `${API_URL}/api/users/${userId}`);
+      console.log('토큰:', token);
+      
+      const response = await fetch(`${API_URL}/api/users/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log('API 응답 상태:', response.status);
+      
+      if (response.ok) {
+        const profileData = await response.json();
+        console.log('받은 프로필 데이터:', profileData);
+        setSelectedProfile(profileData);
+        setIsProfilePopupOpen(true);
+      } else {
+        const errorText = await response.text();
+        console.error('프로필 조회 실패:', response.status);
+        console.error('에러 내용:', errorText);
+      }
+    } catch (error) {
+      console.error('프로필 정보 조회 오류:', error);
+    }
+  };
+
   // 화면이 포커스될 때마다 데이터 새로고침
   useFocusEffect(
     useCallback(() => {
@@ -228,28 +395,34 @@ export default function HomeScreen() {
                   <Text color="$gray11" textAlign="center">아직 성사된 버디가 없습니다.</Text>
                 ) : (
                   acceptedBuddies.map((buddy) => (
-                    <Card key={buddy._id} bordered>
-                      <Card.Header padded>
-                        <XStack space="$3" alignItems="center">
-                          <Image
-                            source={{ uri: buddy.profileImage || 'https://via.placeholder.com/50' }}
-                            width={50}
-                            height={50}
-                            borderRadius={25}
-                          />
-                          <YStack>
-                            <Text fontSize="$5" fontWeight="bold">{buddy.name}</Text>
-                            <Text fontSize="$3" color="$gray11">
-                              매칭일: {new Date(buddy.matchedAt).toLocaleDateString('ko-KR', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })}
-                            </Text>
-                          </YStack>
-                        </XStack>
-                      </Card.Header>
-                    </Card>
+                    <Button
+                      key={buddy._id}
+                      unstyled
+                      onPress={() => handleProfileClick(buddy._id)}
+                    >
+                      <Card bordered width="100%">
+                        <Card.Header padded>
+                          <XStack space="$3" alignItems="center">
+                            <Image
+                              source={{ uri: buddy.profileImage || 'https://via.placeholder.com/50' }}
+                              width={50}
+                              height={50}
+                              borderRadius={25}
+                            />
+                            <YStack>
+                              <Text fontSize="$5" fontWeight="bold">{buddy.name}</Text>
+                              <Text fontSize="$3" color="$gray11">
+                                매칭일: {new Date(buddy.matchedAt).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })}
+                              </Text>
+                            </YStack>
+                          </XStack>
+                        </Card.Header>
+                      </Card>
+                    </Button>
                   ))
                 )}
               </YStack>
@@ -268,28 +441,33 @@ export default function HomeScreen() {
                 ) : (
                   receivedRequests.map((request) => (
                     <Card key={request._id} bordered>
-                      <Card.Header padded>
-                        <XStack space="$3" alignItems="center">
-                          <Image
-                            source={{ uri: request.sender.profileImage || 'https://via.placeholder.com/50' }}
-                            width={50}
-                            height={50}
-                            borderRadius={25}
-                          />
-                          <YStack>
-                            <Text fontSize="$5" fontWeight="bold">{request.sender.name}</Text>
-                            <Text fontSize="$3" color="$gray11">
-                              수신일: {new Date(request.createdAt).toLocaleDateString('ko-KR', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </Text>
-                          </YStack>
-                        </XStack>
-                      </Card.Header>
+                      <Button
+                        unstyled
+                        onPress={() => handleProfileClick(request.sender._id)}
+                      >
+                        <Card.Header padded>
+                          <XStack space="$3" alignItems="center">
+                            <Image
+                              source={{ uri: request.sender.profileImage || 'https://via.placeholder.com/50' }}
+                              width={50}
+                              height={50}
+                              borderRadius={25}
+                            />
+                            <YStack>
+                              <Text fontSize="$5" fontWeight="bold">{request.sender.name}</Text>
+                              <Text fontSize="$3" color="$gray11">
+                                수신일: {new Date(request.createdAt).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </Text>
+                            </YStack>
+                          </XStack>
+                        </Card.Header>
+                      </Button>
                       <Card.Footer padded>
                         <XStack space="$2" flex={1}>
                           <Button
@@ -330,56 +508,62 @@ export default function HomeScreen() {
                   <Text color="$gray11" textAlign="center">보낸 친구 신청이 없습니다.</Text>
                 ) : (
                   sentRequests.map((request) => (
-                    <Card key={request._id} bordered>
-                      <Card.Header padded>
-                        <XStack space="$3" alignItems="center">
-                          <Image
-                            source={{ uri: request.receiver.profileImage || 'https://via.placeholder.com/50' }}
-                            width={50}
-                            height={50}
-                            borderRadius={25}
-                          />
-                          <YStack>
-                            <Text fontSize="$5" fontWeight="bold">{request.receiver.name}</Text>
-                          </YStack>
-                        </XStack>
-                      </Card.Header>
-                      <Card.Footer padded>
-                        <YStack space="$2" width="100%">
-                          <XStack space="$2" alignItems="center">
-                            <Text fontSize="$3" color="$gray11">신청일: </Text>
-                            <Text fontSize="$3" color="$gray12">
-                              {new Date(request.createdAt).toLocaleDateString('ko-KR', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </Text>
+                    <Button
+                      key={request._id}
+                      unstyled
+                      onPress={() => handleProfileClick(request.receiver._id)}
+                    >
+                      <Card bordered width="100%">
+                        <Card.Header padded>
+                          <XStack space="$3" alignItems="center">
+                            <Image
+                              source={{ uri: request.receiver.profileImage || 'https://via.placeholder.com/50' }}
+                              width={50}
+                              height={50}
+                              borderRadius={25}
+                            />
+                            <YStack>
+                              <Text fontSize="$5" fontWeight="bold">{request.receiver.name}</Text>
+                            </YStack>
                           </XStack>
-                          <XStack space="$2" alignItems="center">
-                            <Text fontSize="$3" color="$gray11">상태: </Text>
-                            <Text 
-                              fontSize="$3" 
-                              color={
-                                request.status === 'pending' 
-                                  ? '$orange10' 
+                        </Card.Header>
+                        <Card.Footer padded>
+                          <YStack space="$2" width="100%">
+                            <XStack space="$2" alignItems="center">
+                              <Text fontSize="$3" color="$gray11">신청일: </Text>
+                              <Text fontSize="$3" color="$gray12">
+                                {new Date(request.createdAt).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </Text>
+                            </XStack>
+                            <XStack space="$2" alignItems="center">
+                              <Text fontSize="$3" color="$gray11">상태: </Text>
+                              <Text 
+                                fontSize="$3" 
+                                color={
+                                  request.status === 'pending' 
+                                    ? '$orange10' 
+                                    : request.status === 'accepted' 
+                                      ? '$green10' 
+                                      : '$red10'
+                                }
+                              >
+                                {request.status === 'pending' 
+                                  ? '대기 중' 
                                   : request.status === 'accepted' 
-                                    ? '$green10' 
-                                    : '$red10'
-                              }
-                            >
-                              {request.status === 'pending' 
-                                ? '대기 중' 
-                                : request.status === 'accepted' 
-                                  ? '수락됨' 
-                                  : '거절됨'}
-                            </Text>
-                          </XStack>
-                        </YStack>
-                      </Card.Footer>
-                    </Card>
+                                    ? '수락됨' 
+                                    : '거절됨'}
+                              </Text>
+                            </XStack>
+                          </YStack>
+                        </Card.Footer>
+                      </Card>
+                    </Button>
                   ))
                 )}
               </YStack>
@@ -387,6 +571,12 @@ export default function HomeScreen() {
           </Card>
         </Stack>
       </ScrollView>
+
+      <ProfilePopup
+        isOpen={isProfilePopupOpen}
+        onClose={() => setIsProfilePopupOpen(false)}
+        profile={selectedProfile}
+      />
     </SafeAreaView>
   );
 }
