@@ -185,6 +185,8 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       otherActivity,
       profileImage,
       portalImage,
+      age: new Date().getFullYear() - parseInt(birthYear),
+      languages: [primaryLanguage, targetLanguage],
     });
 
     await user.save();

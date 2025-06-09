@@ -48,7 +48,10 @@ const userSchema = new mongoose.Schema({
     type: String,
   }],
   otherActivity: String,
-  profileImage: String,
+  profileImage: {
+    type: String,
+    default: 'https://via.placeholder.com/150'
+  },
   portalImage: String,
   genderPreference: {
     type: String,
@@ -58,6 +61,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['language', 'activity']
   },
+  age: {
+    type: Number,
+    required: true
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
+  preferredActivities: [{
+    type: String
+  }],
+  languages: [{
+    type: String
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { User } from '../models/User';
+import { FriendRequest } from '../models/FriendRequest';
 
 // 매칭 우선순위 설정 업데이트
 export const updatePreferences = async (req: AuthRequest, res: Response) => {
@@ -148,10 +149,22 @@ export const updatePreferences = async (req: AuthRequest, res: Response) => {
         matchScore: Math.round((match.score / match.maxScore) * 100)
       }));
 
-    // 매칭된 버디가 없고, 영어 가능 여부가 일치하는 사용자가 있는 경우
-    if (topMatches.length === 0) {
+    console.log('기본 매칭 결과:', {
+      count: topMatches.length,
+      matches: topMatches.map(m => ({ id: m.id, name: m.name, score: m.matchScore }))
+    });
+
+    // 매칭된 버디가 3명 미만인 경우, 영어 가능 여부가 일치하는 사용자를 추가
+    if (topMatches.length < 3) {
+      const remainingSlots = 3 - topMatches.length;
+      const existingMatchIds = new Set(topMatches.map(match => match.id));
+
+      // 이미 매칭된 사용자를 제외하고 영어 가능 여부가 일치하는 사용자 필터링
       const englishMatches = potentialMatches
-        .filter(match => match.canSpeakEnglish === currentUser.canSpeakEnglish)
+        .filter(match => 
+          !existingMatchIds.has(match._id.toString()) && 
+          match.canSpeakEnglish === currentUser.canSpeakEnglish
+        )
         .map(match => ({
           id: match._id,
           name: match.name,
@@ -162,12 +175,17 @@ export const updatePreferences = async (req: AuthRequest, res: Response) => {
           activities: match.activities,
           profileImage: match.profileImage,
           canSpeakEnglish: match.canSpeakEnglish,
-          matchScore: 30
+          matchScore: 30 // 기본 매칭 점수 부여
         }))
-        .slice(0, 3);
+        .slice(0, remainingSlots); // 남은 자리만큼만 선택
+
+      console.log('영어 매칭 결과:', {
+        count: englishMatches.length,
+        matches: englishMatches.map(m => ({ id: m.id, name: m.name }))
+      });
 
       if (englishMatches.length > 0) {
-        topMatches = englishMatches;
+        topMatches = [...topMatches, ...englishMatches];
       }
     }
 
@@ -235,6 +253,19 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
 
+    // 거절된 친구 신청 목록 조회
+    const rejectedRequests = await FriendRequest.find({
+      $or: [
+        { sender: userId, status: 'rejected' },
+        { receiver: userId, status: 'rejected' }
+      ]
+    });
+
+    // 거절된 사용자 ID 목록 생성
+    const rejectedUserIds = rejectedRequests.map(request => 
+      request.sender.toString() === userId ? request.receiver : request.sender
+    );
+
     console.log('현재 사용자 정보:', {
       id: currentUser._id,
       gender: currentUser.gender,
@@ -252,15 +283,19 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
       genderFilter = { gender: currentUser.gender };
     }
 
-    // 현재 사용자를 제외한 모든 사용자 조회
+    // 현재 사용자를 제외하고, 거절된 사용자도 제외
     const potentialMatches = await User.find({
-      _id: { $ne: userId },
+      _id: { 
+        $ne: userId,
+        $nin: rejectedUserIds
+      },
       ...genderFilter
     });
 
     console.log('필터링된 잠재적 매칭 수:', potentialMatches.length);
+    console.log('거절된 사용자 수:', rejectedUserIds.length);
 
-    // 매칭 점수 계산 (사진 기준)
+    // 매칭 점수 계산
     const matchesWithScores: MatchScore[] = potentialMatches.map(match => {
       let score = 0;
       let languageScore = 0;
@@ -269,7 +304,6 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
 
       // 언어 매칭 점수
       if (match.targetLanguage === currentUser.targetLanguage) {
-        // 내 교류언어 == 상대 교류언어
         if (currentUser.priority === 'language') {
           languageScore += 50;
         } else {
@@ -277,9 +311,7 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
         }
         hasLanguageMatch = true;
       } else {
-        // 내 교류언어 != 상대 교류언어
         if (match.primaryLanguage === currentUser.targetLanguage) {
-          // 상대 모국어 == 내 교류언어
           if (currentUser.priority === 'language') {
             languageScore += 30;
           } else {
@@ -288,7 +320,6 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
           hasLanguageMatch = true;
         }
         if (currentUser.primaryLanguage === match.targetLanguage) {
-          // 내 모국어 == 상대 교류언어
           if (currentUser.priority === 'language') {
             languageScore += 20;
           } else {
@@ -299,7 +330,7 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
       }
       score += languageScore;
 
-      // 활동 매칭 점수 (공통 활동 개수만큼 누적, 최대 100점)
+      // 활동 매칭 점수
       const commonActivities = currentUser.activities.filter(activity => 
         match.activities.includes(activity)
       );
@@ -310,36 +341,16 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
         } else {
           activityScore = 40 * commonActivities.length;
         }
-        activityScore = Math.min(activityScore, 100); // 최대 100점 제한
+        activityScore = Math.min(activityScore, 100);
         score += activityScore;
         hasActivityMatch = true;
       }
 
-      // 최소한의 매칭 조건을 만족하면 기본 점수 보장 (사진에는 없으나 기존 로직 유지)
       if (hasLanguageMatch || hasActivityMatch) {
         score = Math.max(score, 40);
       }
 
-      // maxScore: 실제 부여된 언어점수 + 100
       const maxScore = languageScore + 100;
-
-      console.log('매칭 점수 계산:', {
-        matchId: match._id,
-        matchName: match.name,
-        score,
-        languageScore,
-        activityScore,
-        maxScore,
-        hasLanguageMatch,
-        hasActivityMatch,
-        commonActivities: commonActivities.length,
-        languageMatch: {
-          myPrimary: currentUser.primaryLanguage,
-          myTarget: currentUser.targetLanguage,
-          theirPrimary: match.primaryLanguage,
-          theirTarget: match.targetLanguage
-        }
-      });
 
       return {
         user: {
@@ -359,7 +370,7 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
     });
 
     // 점수순으로 정렬하고 상위 3개 선택
-    let topMatches = matchesWithScores
+    const topMatches = matchesWithScores
       .sort((a, b) => b.score - a.score)
       .slice(0, 3)
       .map(match => ({
@@ -367,38 +378,10 @@ export const getMatches = async (req: AuthRequest, res: Response) => {
         matchScore: Math.round((match.score / match.maxScore) * 100)
       }));
 
-    console.log('기본 매칭 결과:', {
+    console.log('매칭 결과:', {
       count: topMatches.length,
       matches: topMatches.map(m => ({ id: m.id, name: m.name, score: m.matchScore }))
     });
-
-    // 매칭된 버디가 없고, 영어 가능 여부가 일치하는 사용자가 있는 경우
-    if (topMatches.length === 0) {
-      const englishMatches = potentialMatches
-        .filter(match => match.canSpeakEnglish === currentUser.canSpeakEnglish)
-        .map(match => ({
-          id: match._id,
-          name: match.name,
-          age: new Date().getFullYear() - parseInt(match.birthYear),
-          gender: match.gender,
-          primaryLanguage: match.primaryLanguage,
-          targetLanguage: match.targetLanguage,
-          activities: match.activities,
-          profileImage: match.profileImage,
-          canSpeakEnglish: match.canSpeakEnglish,
-          matchScore: 30 // 기본 매칭 점수 부여
-        }))
-        .slice(0, 3); // 최대 3명까지 선택
-
-      console.log('영어 매칭 결과:', {
-        count: englishMatches.length,
-        matches: englishMatches.map(m => ({ id: m.id, name: m.name }))
-      });
-
-      if (englishMatches.length > 0) {
-        topMatches = englishMatches;
-      }
-    }
 
     res.json(topMatches);
   } catch (error) {
