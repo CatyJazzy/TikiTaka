@@ -3,28 +3,31 @@ import { Checkbox } from '@tamagui/checkbox';
 import { Check } from '@tamagui/lucide-icons';
 import { SignupStepProps } from './types';
 import { ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const ACTIVITIES = [
-  '국내여행',
-  '쇼핑',
-  '명소',
-  '한강',
-  '시장',
-  '편의점 털기',
-  '카페',
-  '노래방',
-  '놀이공원(롯데월드, 에버랜드)',
-  '한옥마을',
-  '유행하는 것',
-  '대화',
-  '공부',
-  '교내 투어',
-  '맛집 투어',
-  '음주',
-  '기타'
+  'domesticTravel',
+  'shopping',
+  'attractions',
+  'hanRiver',
+  'market',
+  'convenienceStore',
+  'cafe',
+  'karaoke',
+  'amusementPark',
+  'hanokVillage',
+  'trending',
+  'conversation',
+  'study',
+  'campusTour',
+  'foodTour',
+  'drinking',
+  'other'
 ];
 
 export const Step6 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
+  const { t } = useTranslation();
+
   const handleActivityChange = (activity: string, checked: boolean) => {
     const currentActivities = formData.activities || [];
     let newActivities: string[];
@@ -39,15 +42,15 @@ export const Step6 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
   };
 
   const isFormValid = formData.activities && formData.activities.length > 0 && 
-    (!formData.activities.includes('기타') || formData.otherActivity);
+    (!formData.activities.includes('other') || formData.otherActivity);
 
   return (
     <YStack space="$4" width="100%" maxWidth={340} alignItems="center">
       <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
-        활동 선택
+        {t('signup.step6.title')}
       </Text>
       <Text textAlign="center" marginBottom="$4" color="$gray11">
-        함께하고 싶은 활동을 선택해 주세요.(복수선택 가능)
+        {t('signup.step6.description')}
       </Text>
 
       <ScrollView style={{ width: '100%', maxHeight: 400 }}>
@@ -67,14 +70,14 @@ export const Step6 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                   <Check size={28} color="white" />
                 </Checkbox.Indicator>
               </Checkbox>
-              <Text fontSize="$5" fontWeight="500">{activity}</Text>
+              <Text fontSize="$5" fontWeight="500">{t(`signup.step6.activities.${activity}`)}</Text>
             </XStack>
           ))}
         </YStack>
 
-        {formData.activities?.includes('기타') && (
+        {formData.activities?.includes('other') && (
           <Input
-            placeholder="기타 활동을 입력해주세요"
+            placeholder={t('signup.step6.enterOtherActivity')}
             value={formData.otherActivity}
             onChangeText={(value: string) => onUpdate({ otherActivity: value })}
             width="100%"
@@ -91,7 +94,7 @@ export const Step6 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           size="$4"
           flex={1}
         >
-          이전
+          {t('signup.step6.previous')}
         </Button>
         <Button
           onPress={onNext}
@@ -102,7 +105,7 @@ export const Step6 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           opacity={isFormValid ? 1 : 0.5}
           disabled={!isFormValid}
         >
-          다음
+          {t('signup.step6.next')}
         </Button>
       </XStack>
     </YStack>

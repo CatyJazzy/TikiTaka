@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Stack, Text, XStack, YStack, Button, Card, Image, Spinner } from 'tamagui';
 import { RefreshCw, Settings, UserPlus } from '@tamagui/lucide-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { API_URL } from '../../constants';
+import { useTranslation } from 'react-i18next';
 
 interface User {
   id: string;
@@ -26,6 +27,78 @@ export default function MatchingScreen() {
   const [matchedUsers, setMatchedUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { t } = useTranslation();
+
+  // 언어 번역 헬퍼 함수
+  const translateLanguage = (language: string) => {
+    const languageKey = language.toLowerCase().replace(/\s+/g, '');
+    // 언어 매핑
+    const languageMap: { [key: string]: string } = {
+      '한국어': 'korean',
+      '영어': 'english',
+      '중국어': 'chinese',
+      '일본어': 'japanese',
+      '프랑스어': 'french',
+      '스페인어': 'spanish',
+      '독일어': 'german',
+      'korean': 'korean',
+      'english': 'english',
+      'chinese': 'chinese',
+      'japanese': 'japanese',
+      'french': 'french',
+      'spanish': 'spanish',
+      'german': 'german'
+    };
+    
+    const key = languageMap[languageKey] || languageMap[language];
+    return key ? t(`languages.${key}`) : language;
+  };
+
+  // 활동 번역 헬퍼 함수
+  const translateActivity = (activity: string) => {
+    const activityKey = activity.replace(/\s+/g, '').toLowerCase();
+    // 활동 매핑
+    const activityMap: { [key: string]: string } = {
+      '국내여행': 'domesticTravel',
+      '쇼핑': 'shopping',
+      '명소': 'attractions',
+      '한강': 'hanRiver',
+      '시장': 'market',
+      '편의점털기': 'convenienceStore',
+      '편의점': 'convenienceStore',
+      '카페': 'cafe',
+      '노래방': 'karaoke',
+      '놀이공원': 'amusementPark',
+      '한옥마을': 'hanokVillage',
+      '유행하는것': 'trending',
+      '대화': 'conversation',
+      '공부': 'study',
+      '교내투어': 'campusTour',
+      '맛집투어': 'foodTour',
+      '음주': 'drinking',
+      '기타': 'other',
+      'domestictravel': 'domesticTravel',
+      'shopping': 'shopping',
+      'attractions': 'attractions',
+      'hanriver': 'hanRiver',
+      'market': 'market',
+      'conveniencestore': 'convenienceStore',
+      'cafe': 'cafe',
+      'karaoke': 'karaoke',
+      'amusementpark': 'amusementPark',
+      'hanokvillage': 'hanokVillage',
+      'trending': 'trending',
+      'conversation': 'conversation',
+      'study': 'study',
+      'campustour': 'campusTour',
+      'foodtour': 'foodTour',
+      'drinking': 'drinking',
+      'other': 'other'
+    };
+    
+    const key = activityMap[activityKey] || activityMap[activity.toLowerCase()];
+    return key ? t(`activities.${key}`) : activity;
+  };
 
   const fetchMatches = async () => {
     if (!token) return;
@@ -100,38 +173,27 @@ export default function MatchingScreen() {
     router.push('/matching-preferences');
   };
 
-  const handleBuddyRequest = async (userId: string) => {
-    try {
-      console.log('친구 신청 API 호출:', `${API_URL}/friend-requests/send`);
-      console.log('토큰:', token);
-      console.log('요청 데이터:', { receiverId: userId });
+  const handleBuddyRequest = async (targetUserId: string) => {
+    if (!token) return;
 
-      const response = await fetch(`${API_URL}/friend-requests/send`, {
+    try {
+      const response = await fetch(`${API_URL}/buddy-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ receiverId: userId })
+        body: JSON.stringify({ targetUserId }),
       });
 
-      console.log('응답 상태:', response.status);
-      const responseText = await response.text();
-      console.log('응답 내용:', responseText);
-
-      if (response.ok) {
-        alert('친구 신청이 전송되었습니다.');
+      if (!response.ok) {
+        const data = await response.json();
+        alert(data.message || t('matching.requestFailed'));
       } else {
-        try {
-          const data = JSON.parse(responseText);
-          alert(data.message || '친구 신청 전송에 실패했습니다.');
-        } catch (e) {
-          alert('친구 신청 전송에 실패했습니다.');
-        }
+        alert(t('matching.requestSent'));
       }
     } catch (error) {
-      console.error('친구 신청 오류:', error);
-      alert('친구 신청 전송 중 오류가 발생했습니다.');
+      alert(t('matching.requestFailed'));
     }
   };
 
@@ -152,7 +214,7 @@ export default function MatchingScreen() {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <Stack flex={1} padding="$4" space="$4">
             <XStack justifyContent="space-between" alignItems="center">
-              <Text fontSize="$8" fontWeight="bold">Buddies</Text>
+              <Text fontSize="$8" fontWeight="bold">{t('matching.title')}</Text>
               <XStack space="$2">
                 <Button
                   icon={Settings}
@@ -178,7 +240,7 @@ export default function MatchingScreen() {
                 marginBottom="$2"
               >
                 <Text color="$blue10" textAlign="center">
-                  매칭 기준 우선순위를 상단의 설정 아이콘에서 저장해주세요.
+                  {t('matching.preferencesRequired')}
                 </Text>
               </YStack>
             )}
@@ -199,15 +261,15 @@ export default function MatchingScreen() {
                     <YStack space="$2" width="100%">
                       <XStack justifyContent="space-between" alignItems="center">
                         <Text fontSize="$6" fontWeight="bold">{user.name}</Text>
-                        <Text fontSize="$4" color="$gray11">{user.age}세</Text>
+                        <Text fontSize="$4" color="$gray11">{user.age}{t('matching.ageUnit')}</Text>
                       </XStack>
                       
                       <YStack space="$1">
                         <Text fontSize="$4" color="$gray11">
-                          모국어: {user.primaryLanguage}
+                          {t('matching.nativeLanguage')}: {translateLanguage(user.primaryLanguage)}
                         </Text>
                         <Text fontSize="$4" color="$gray11">
-                          학습 언어: {user.targetLanguage}
+                          {t('matching.learningLanguage')}: {translateLanguage(user.targetLanguage)}
                         </Text>
                       </YStack>
 
@@ -221,22 +283,22 @@ export default function MatchingScreen() {
                             borderRadius="$2"
                             fontSize="$3"
                           >
-                            {activity}
+                            {translateActivity(activity)}
                           </Text>
                         ))}
                       </XStack>
 
                       <XStack justifyContent="space-between" alignItems="center">
                         <Text fontSize="$4" color="$blue10">
-                          매칭 점수: {user.matchScore}%
+                          {t('matching.matchScore')}: {user.matchScore}%
                         </Text>
                         <Button
-                          icon={UserPlus}
-                          theme="active"
                           backgroundColor="rgb(255,191,84)"
+                          color="$gray12"
+                          size="$4"
                           onPress={() => handleBuddyRequest(user.id)}
                         >
-                          버디 신청
+                          {t('matching.sendRequest')}
                         </Button>
                       </XStack>
                     </YStack>
@@ -252,7 +314,7 @@ export default function MatchingScreen() {
                   alignItems="center"
                 >
                   <Text color="$gray11" textAlign="center">
-                    아직 매칭된 버디가 없습니다.
+                    {t('matching.noMatches')}
                   </Text>
                 </YStack>
               )}

@@ -2,8 +2,11 @@ import { YStack, Text, Button, XStack, Stack } from 'tamagui';
 import { Image } from 'react-native';
 import { SignupStepProps } from './types';
 import * as ImagePicker from 'expo-image-picker';
+import { useTranslation } from 'react-i18next';
 
 export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: SignupStepProps) => {
+  const { t } = useTranslation();
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -20,10 +23,10 @@ export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: Sign
   return (
     <YStack space="$4" width="100%" maxWidth={340} alignItems="center" padding="$4">
       <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
-        회원가입 완료
+        {t('signup.step7.title')}
       </Text>
       <Text textAlign="center" marginBottom="$4" color="$gray11">
-        모든 정보가 입력되었습니다. 회원가입을 완료하시겠습니까?
+        {t('signup.step7.description')}
       </Text>
 
       <Stack width={200} height={200} marginVertical="$4">
@@ -41,7 +44,7 @@ export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: Sign
             justifyContent="center"
             alignItems="center"
           >
-            <Text color="$gray11">이미지 없음</Text>
+            <Text color="$gray11">{t('signup.step7.noImage')}</Text>
           </Stack>
         )}
       </Stack>
@@ -53,7 +56,7 @@ export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: Sign
         size="$4"
         width="100%"
       >
-        {formData.profileImage ? '이미지 변경하기' : '이미지 선택하기'}
+        {formData.profileImage ? t('signup.step7.changeImage') : t('signup.step7.selectImage')}
       </Button>
 
       <XStack space="$4" width="100%" marginTop="$4">
@@ -64,7 +67,7 @@ export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: Sign
           size="$4"
           flex={1}
         >
-          이전
+          {t('signup.step7.previous')}
         </Button>
         <Button
           onPress={onNext}
@@ -75,7 +78,7 @@ export const Step7 = ({ formData, onUpdate, onNext, onPrev, isSubmitting }: Sign
           disabled={isSubmitting}
           opacity={isSubmitting ? 0.5 : 1}
         >
-          {isSubmitting ? '처리 중...' : '회원가입 완료'}
+          {isSubmitting ? t('signup.step7.processing') : t('signup.step7.complete')}
         </Button>
       </XStack>
     </YStack>

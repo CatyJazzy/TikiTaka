@@ -5,9 +5,11 @@ import { Check } from '@tamagui/lucide-icons';
 import { SignupStepProps } from './types';
 import { useRef } from 'react';
 import { TextInput } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
   const nameInputRef = useRef<TextInput>(null);
+  const { t } = useTranslation();
 
   const years = Array.from({ length: 30 }, (_, i) => (new Date().getFullYear() - 30 + i).toString());
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
@@ -18,15 +20,15 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
   return (
     <YStack space="$4" width="100%" maxWidth={340} alignItems="center">
       <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
-        기본 정보 입력
+        {t('signup.step3.title')}
       </Text>
       <Text textAlign="center" marginBottom="$4" color="$gray11">
-        이름과 생년월일을 기입해 주세요.
+        {t('signup.step3.description')}
       </Text>
 
       <Input
         ref={nameInputRef}
-        placeholder="이름"
+        placeholder={t('signup.step3.name')}
         value={formData.name}
         onChangeText={(value) => onUpdate({ name: value })}
         width="100%"
@@ -41,7 +43,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             onValueChange={(value) => onUpdate({ birthYear: value })}
           >
             <Select.Trigger>
-              <Select.Value placeholder="년도" />
+              <Select.Value placeholder={t('signup.step3.year')} />
             </Select.Trigger>
             <Adapt when="sm" platform="touch">
               <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
@@ -59,7 +61,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                 <Select.Group>
                   {years.map((year) => (
                     <Select.Item key={year} value={year}>
-                      <Select.ItemText>{year}년</Select.ItemText>
+                      <Select.ItemText>{year}{t('signup.step3.yearUnit')}</Select.ItemText>
                       <Select.ItemIndicator>
                         <Check size={16} />
                       </Select.ItemIndicator>
@@ -78,7 +80,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             onValueChange={(value) => onUpdate({ birthMonth: value })}
           >
             <Select.Trigger>
-              <Select.Value placeholder="월" />
+              <Select.Value placeholder={t('signup.step3.month')} />
             </Select.Trigger>
             <Adapt when="sm" platform="touch">
               <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
@@ -96,7 +98,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                 <Select.Group>
                   {months.map((month) => (
                     <Select.Item key={month} value={month}>
-                      <Select.ItemText>{month}월</Select.ItemText>
+                      <Select.ItemText>{month}{t('signup.step3.monthUnit')}</Select.ItemText>
                       <Select.ItemIndicator>
                         <Check size={16} />
                       </Select.ItemIndicator>
@@ -115,7 +117,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             onValueChange={(value) => onUpdate({ birthDay: value })}
           >
             <Select.Trigger>
-              <Select.Value placeholder="일" />
+              <Select.Value placeholder={t('signup.step3.day')} />
             </Select.Trigger>
             <Adapt when="sm" platform="touch">
               <Select.Sheet modal dismissOnSnapToBottom snapPoints={[50]}>
@@ -133,7 +135,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                 <Select.Group>
                   {days.map((day) => (
                     <Select.Item key={day} value={day}>
-                      <Select.ItemText>{day}일</Select.ItemText>
+                      <Select.ItemText>{day}{t('signup.step3.dayUnit')}</Select.ItemText>
                       <Select.ItemIndicator>
                         <Check size={16} />
                       </Select.ItemIndicator>
@@ -155,7 +157,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           size="$4"
           flex={1}
         >
-          이전
+          {t('signup.step3.previous')}
         </Button>
         <Button
           onPress={onNext}
@@ -166,7 +168,7 @@ export const Step3 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           opacity={isFormValid ? 1 : 0.5}
           disabled={!isFormValid}
         >
-          다음
+          {t('signup.step3.next')}
         </Button>
       </XStack>
     </YStack>

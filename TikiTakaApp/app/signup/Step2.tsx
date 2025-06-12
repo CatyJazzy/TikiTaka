@@ -3,9 +3,11 @@ import { Image, ScrollView, KeyboardAvoidingView, Platform, Linking } from 'reac
 import { SignupStepProps } from './types';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const { t } = useTranslation();
 
   const handlePortalLink = () => {
     Linking.openURL('https://portal.korea.ac.kr');
@@ -25,7 +27,7 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
         onUpdate({ portalImage: result.assets[0].uri });
       }
     } catch (error) {
-      alert('이미지 업로드에 실패했습니다.');
+      alert(t('signup.step2.uploadFailed'));
     } finally {
       setIsUploading(false);
     }
@@ -46,16 +48,16 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
       >
         <YStack space="$4" width="100%" maxWidth={480} alignItems="center" paddingVertical="$4">
           <Text fontSize="$6" fontWeight="bold" textAlign="center">
-            포털 인증
+            {t('signup.step2.title')}
           </Text>
           <Text textAlign="center" marginBottom="$4" color="$gray11">
-            포털 사이트에서 해당 화면을 캡처하여 등록해 주세요.
+            {t('signup.step2.description')}
           </Text>
           
           <YStack space="$2" width="100%" marginBottom="$4">
-            <Text color="$gray11" fontSize="$3">1. 포털로 이동하기</Text>
-            <Text color="$gray11" fontSize="$3">2. 상단 중앙의 이름(아이디) 영역 캡처</Text>
-            <Text color="$gray11" fontSize="$3">3. 캡처한 이미지 업로드</Text>
+            <Text color="$gray11" fontSize="$3">{t('signup.step2.instruction1')}</Text>
+            <Text color="$gray11" fontSize="$3">{t('signup.step2.instruction2')}</Text>
+            <Text color="$gray11" fontSize="$3">{t('signup.step2.instruction3')}</Text>
           </YStack>
 
           <Button
@@ -66,7 +68,7 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             width="100%"
             marginBottom="$2"
           >
-            고려대학교 포털 바로가기
+            {t('signup.step2.portalLink')}
           </Button>
 
           <Stack width="100%" height={200} marginVertical="$4">
@@ -85,7 +87,7 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                 justifyContent="center"
                 alignItems="center"
               >
-                <Text color="$gray11">이미지 없음</Text>
+                <Text color="$gray11">{t('signup.step2.noImage')}</Text>
               </Stack>
             )}
           </Stack>
@@ -98,7 +100,7 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             width="100%"
             disabled={isUploading}
           >
-            {isUploading ? '업로드 중...' : (formData.portalImage ? '이미지 변경하기' : '이미지 선택하기')}
+            {isUploading ? t('signup.step2.uploading') : (formData.portalImage ? t('signup.step2.changeImage') : t('signup.step2.selectImage'))}
           </Button>
 
           <XStack space="$4" width="100%" marginTop="$4">
@@ -109,7 +111,7 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
               size="$4"
               flex={1}
             >
-              이전
+              {t('signup.step2.previous')}
             </Button>
             <Button
               onPress={onNext}
@@ -120,7 +122,7 @@ export const Step2 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
               disabled={!isFormValid}
               opacity={isFormValid ? 1 : 0.5}
             >
-              다음
+              {t('signup.step2.next')}
             </Button>
           </XStack>
         </YStack>

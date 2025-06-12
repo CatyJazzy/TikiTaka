@@ -4,16 +4,18 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { API_URL } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('이메일과 비밀번호를 입력해주세요.');
+      alert(t('auth.enterEmailPassword'));
       return;
     }
 
@@ -41,12 +43,12 @@ export default function LoginScreen() {
           statusText: response.statusText,
           data: data
         });
-        throw new Error(data.message || '로그인에 실패했습니다.');
+        throw new Error(data.message || t('auth.loginFailed'));
       }
 
       if (!data.token) {
         console.error('토큰 누락:', data);
-        throw new Error('서버에서 토큰을 받지 못했습니다.');
+        throw new Error(t('auth.tokenMissing'));
       }
 
       console.log('로그인 성공:', { token: data.token.substring(0, 10) + '...' });
@@ -60,7 +62,7 @@ export default function LoginScreen() {
         API_URL,
         email
       });
-      alert(error instanceof Error ? error.message : '로그인에 실패했습니다.');
+      alert(error instanceof Error ? error.message : t('auth.loginFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -89,11 +91,11 @@ export default function LoginScreen() {
               resizeMode="contain"
             />
             <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
-              TikiTaka 로그인(Login)
+              TikiTaka {t('auth.login')}
             </Text>
             
             <Input
-              placeholder="이메일"
+              placeholder={t('auth.email')}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -102,7 +104,7 @@ export default function LoginScreen() {
             />
             
             <Input
-              placeholder="비밀번호"
+              placeholder={t('auth.password')}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -118,7 +120,7 @@ export default function LoginScreen() {
               disabled={isLoading}
               opacity={isLoading ? 0.5 : 1}
             >
-              {isLoading ? '로그인 중...' : '로그인'}
+              {isLoading ? t('auth.loggingIn') : t('auth.login')}
             </Button>
 
             <Button
@@ -131,18 +133,18 @@ export default function LoginScreen() {
               size="$5"
               width="100%"
             >
-              개발자용 임시 로그인
+              {t('auth.devLogin')}
             </Button>
 
             <XStack justifyContent="center" space="$2">
-              <Text>계정이 없으신가요?</Text>
+              <Text>{t('auth.noAccount')}</Text>
               <Text
                 color="rgb(220, 20, 60)"
                 onPress={() => {
                   router.push('/signup');
                 }}
               >
-                회원가입
+                {t('auth.signup')}
               </Text>
             </XStack>
           </YStack>

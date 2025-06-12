@@ -3,17 +3,25 @@ import { Select } from '@tamagui/select';
 import { Check } from '@tamagui/lucide-icons';
 import { SignupStepProps } from './types';
 import { Adapt } from '@tamagui/adapt';
+import { useTranslation } from 'react-i18next';
 
 export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
-  const isFormValid = formData.gender && (formData.gender !== '그 외' || formData.otherGender);
+  const { t } = useTranslation();
+  const isFormValid = formData.gender && (formData.gender !== t('signup.step4.other') || formData.otherGender);
+
+  const genderOptions = [
+    { key: 'male', value: t('signup.step4.male') },
+    { key: 'female', value: t('signup.step4.female') },
+    { key: 'other', value: t('signup.step4.other') }
+  ];
 
   return (
     <YStack space="$4" width="100%" maxWidth={340} alignItems="center">
       <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
-        성별 선택
+        {t('signup.step4.title')}
       </Text>
       <Text textAlign="center" marginBottom="$4" color="$gray11">
-        성별을 선택해 주세요.
+        {t('signup.step4.description')}
       </Text>
 
       <Stack width="100%">
@@ -23,7 +31,7 @@ export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           onValueChange={(value) => onUpdate({ gender: value })}
         >
           <Select.Trigger>
-            <Select.Value placeholder="성별 선택" />
+            <Select.Value placeholder={t('signup.step4.selectGender')} />
           </Select.Trigger>
 
           <Adapt when="sm" platform="touch">
@@ -41,9 +49,9 @@ export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             <Select.ScrollUpButton />
             <Select.Viewport>
               <Select.Group>
-                {['남자', '여자', '그 외'].map((option, index) => (
-                  <Select.Item key={option} value={option} index={index}>
-                    <Select.ItemText>{option}</Select.ItemText>
+                {genderOptions.map((option, index) => (
+                  <Select.Item key={option.key} value={option.value} index={index}>
+                    <Select.ItemText>{option.value}</Select.ItemText>
                     <Select.ItemIndicator>
                       <Check size={16} />
                     </Select.ItemIndicator>
@@ -56,9 +64,9 @@ export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
         </Select>
       </Stack>
 
-      {formData.gender === '그 외' && (
+      {formData.gender === t('signup.step4.other') && (
         <Input
-          placeholder="성별을 입력해주세요"
+          placeholder={t('signup.step4.enterOtherGender')}
           value={formData.otherGender}
           onChangeText={(value) => onUpdate({ otherGender: value })}
           width="100%"
@@ -73,7 +81,7 @@ export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           size="$4"
           flex={1}
         >
-          이전
+          {t('signup.step4.previous')}
         </Button>
         <Button
           onPress={onNext}
@@ -84,7 +92,7 @@ export const Step4 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           opacity={isFormValid ? 1 : 0.5}
           disabled={!isFormValid}
         >
-          다음
+          {t('signup.step4.next')}
         </Button>
       </XStack>
     </YStack>

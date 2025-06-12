@@ -6,6 +6,7 @@ import { API_URL } from '../../constants';
 import { Trophy, Users, Clock, Target, Check, X } from '@tamagui/lucide-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface MatchingStats {
   acceptedMatches: number;
@@ -56,6 +57,79 @@ interface ProfilePopupProps {
 }
 
 const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
+  const { t } = useTranslation();
+  
+  // 언어 번역 헬퍼 함수
+  const translateLanguage = (language: string) => {
+    if (!language) return language;
+    const languageKey = language.toLowerCase().replace(/\s+/g, '');
+    const languageMap: { [key: string]: string } = {
+      '한국어': 'korean',
+      '영어': 'english',
+      '중국어': 'chinese',
+      '일본어': 'japanese',
+      '프랑스어': 'french',
+      '스페인어': 'spanish',
+      '독일어': 'german',
+      'korean': 'korean',
+      'english': 'english',
+      'chinese': 'chinese',
+      'japanese': 'japanese',
+      'french': 'french',
+      'spanish': 'spanish',
+      'german': 'german'
+    };
+    
+    const key = languageMap[languageKey] || languageMap[language];
+    return key ? t(`languages.${key}`) : language;
+  };
+
+  // 활동 번역 헬퍼 함수
+  const translateActivity = (activity: string) => {
+    if (!activity) return activity;
+    const activityKey = activity.replace(/\s+/g, '').toLowerCase();
+    const activityMap: { [key: string]: string } = {
+      '국내여행': 'domesticTravel',
+      '쇼핑': 'shopping',
+      '명소': 'attractions',
+      '한강': 'hanRiver',
+      '시장': 'market',
+      '편의점털기': 'convenienceStore',
+      '편의점': 'convenienceStore',
+      '카페': 'cafe',
+      '노래방': 'karaoke',
+      '놀이공원': 'amusementPark',
+      '한옥마을': 'hanokVillage',
+      '유행하는것': 'trending',
+      '대화': 'conversation',
+      '공부': 'study',
+      '교내투어': 'campusTour',
+      '맛집투어': 'foodTour',
+      '음주': 'drinking',
+      '기타': 'other',
+      'domestictravel': 'domesticTravel',
+      'shopping': 'shopping',
+      'attractions': 'attractions',
+      'hanriver': 'hanRiver',
+      'market': 'market',
+      'conveniencestore': 'convenienceStore',
+      'cafe': 'cafe',
+      'karaoke': 'karaoke',
+      'amusementpark': 'amusementPark',
+      'hanokvillage': 'hanokVillage',
+      'trending': 'trending',
+      'conversation': 'conversation',
+      'study': 'study',
+      'campustour': 'campusTour',
+      'foodtour': 'foodTour',
+      'drinking': 'drinking',
+      'other': 'other'
+    };
+    
+    const key = activityMap[activityKey] || activityMap[activity.toLowerCase()];
+    return key ? t(`activities.${key}`) : activity;
+  };
+  
   if (!profile) return null;
 
   return (
@@ -70,7 +144,7 @@ const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
       <Sheet.Frame padding="$4" space="$4">
         <Sheet.Handle />
         <XStack justifyContent="space-between" alignItems="center">
-          <Text fontSize="$6" fontWeight="bold" marginBottom="$2">프로필 정보</Text>
+          <Text fontSize="$6" fontWeight="bold" marginBottom="$2">{t('home.profileInfo')}</Text>
           <Button
             icon={X}
             circular
@@ -88,22 +162,22 @@ const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
           />
           <YStack space="$2">
             <Text fontSize="$6" fontWeight="bold">{profile.name}</Text>
-            <Text fontSize="$4" color="$gray11">{profile.age}세</Text>
+            <Text fontSize="$4" color="$gray11">{profile.age}{t('home.ageUnit')}</Text>
           </YStack>
         </XStack>
 
         <Card bordered margin="$2">
           <Card.Header padded>
-            <Text fontSize="$5" fontWeight="bold">자기소개</Text>
+            <Text fontSize="$5" fontWeight="bold">{t('home.selfIntroduction')}</Text>
           </Card.Header>
           <Card.Footer padded>
-            <Text fontSize="$4">{profile.bio || '자기소개가 없습니다.'}</Text>
+            <Text fontSize="$4">{profile.bio || t('home.noSelfIntroduction')}</Text>
           </Card.Footer>
         </Card>
 
         <Card bordered margin="$2">
           <Card.Header padded>
-            <Text fontSize="$5" fontWeight="bold">선호 활동</Text>
+            <Text fontSize="$5" fontWeight="bold">{t('home.preferredActivities')}</Text>
           </Card.Header>
           <Card.Footer padded>
             <XStack flexWrap="wrap" space="$2">
@@ -117,7 +191,7 @@ const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
                   paddingVertical="$1"
                   borderRadius="$2"
                 >
-                  {activity}
+                  {translateActivity(activity)}
                 </Text>
               ))}
             </XStack>
@@ -126,12 +200,12 @@ const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
 
         <Card bordered margin="$2">
           <Card.Header padded>
-            <Text fontSize="$5" fontWeight="bold">언어 사용 및 선호</Text>
+            <Text fontSize="$5" fontWeight="bold">{t('home.languageUsage')}</Text>
           </Card.Header>
           <Card.Footer padded>
             <YStack space="$2">
               <XStack space="$2" alignItems="center">
-                <Text fontSize="$4" color="$gray11">모국어:</Text>
+                <Text fontSize="$4" color="$gray11">{t('home.nativeLanguage')}:</Text>
                 <Text
                   fontSize="$3"
                   backgroundColor="$green5"
@@ -140,11 +214,11 @@ const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
                   paddingVertical="$1"
                   borderRadius="$2"
                 >
-                  {profile.primaryLanguage}
+                  {translateLanguage(profile.primaryLanguage)}
                 </Text>
               </XStack>
               <XStack space="$2" alignItems="center">
-                <Text fontSize="$4" color="$gray11">교류 희망 언어:</Text>
+                <Text fontSize="$4" color="$gray11">{t('home.targetLanguage')}:</Text>
                 <Text
                   fontSize="$3"
                   backgroundColor="$blue5"
@@ -153,7 +227,7 @@ const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
                   paddingVertical="$1"
                   borderRadius="$2"
                 >
-                  {profile.targetLanguage}
+                  {translateLanguage(profile.targetLanguage)}
                 </Text>
               </XStack>
             </YStack>
@@ -167,6 +241,7 @@ const ProfilePopup = ({ isOpen, onClose, profile }: ProfilePopupProps) => {
 export default function HomeScreen() {
   const router = useRouter();
   const { token } = useAuth();
+  const { t } = useTranslation();
   const [matchingStats, setMatchingStats] = useState<MatchingStats | null>(null);
   const [receivedRequests, setReceivedRequests] = useState<FriendRequest[]>([]);
   const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
@@ -342,6 +417,23 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, [fetchMatchingStats, fetchFriendRequests, fetchAcceptedBuddies]);
 
+  // 로그인 상태 체크
+  useEffect(() => {
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [token, router]);
+
+  if (!token) {
+    return (
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+        <Stack flex={1} justifyContent="center" alignItems="center">
+          <Spinner size="large" color="$blue10" />
+        </Stack>
+      </SafeAreaView>
+    );
+  }
+
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
@@ -356,29 +448,29 @@ export default function HomeScreen() {
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Stack flex={1} padding="$4" space="$4">
-          <Text fontSize="$8" fontWeight="bold">홈</Text>
+          <Text fontSize="$8" fontWeight="bold">{t('common.home')}</Text>
 
           {/* 매칭 현황 */}
           <Card elevate size="$4" bordered>
             <Card.Header padded>
-              <Text fontSize="$6" fontWeight="bold">매칭 현황</Text>
+              <Text fontSize="$6" fontWeight="bold">{t('matching.stats.title')}</Text>
             </Card.Header>
             <Card.Footer padded>
               <XStack space="$4" flex={1}>
                 <YStack flex={1} alignItems="center" space="$2">
                   <Users size={24} color="$blue10" />
                   <Text fontSize="$6" fontWeight="bold">{matchingStats?.acceptedMatches || 0}</Text>
-                  <Text fontSize="$3" color="$gray11">성사된 매칭</Text>
+                  <Text fontSize="$3" color="$gray11">{t('matching.stats.acceptedMatches')}</Text>
                 </YStack>
                 <YStack flex={1} alignItems="center" space="$2">
                   <Clock size={24} color="$orange10" />
                   <Text fontSize="$6" fontWeight="bold">{matchingStats?.pendingRequests || 0}</Text>
-                  <Text fontSize="$3" color="$gray11">받은 신청</Text>
+                  <Text fontSize="$3" color="$gray11">{t('matching.stats.receivedRequests')}</Text>
                 </YStack>
                 <YStack flex={1} alignItems="center" space="$2">
                   <Target size={24} color="$green10" />
                   <Text fontSize="$6" fontWeight="bold">{matchingStats?.sentPendingRequests || 0}</Text>
-                  <Text fontSize="$3" color="$gray11">보낸 신청</Text>
+                  <Text fontSize="$3" color="$gray11">{t('matching.stats.sentRequests')}</Text>
                 </YStack>
               </XStack>
             </Card.Footer>
@@ -387,12 +479,12 @@ export default function HomeScreen() {
           {/* 성사된 버디 목록 */}
           <Card elevate size="$4" bordered>
             <Card.Header padded>
-              <Text fontSize="$6" fontWeight="bold">성사된 버디</Text>
+              <Text fontSize="$6" fontWeight="bold">{t('matching.buddies.title')}</Text>
             </Card.Header>
             <Card.Footer padded>
               <YStack space="$4" width="100%">
                 {acceptedBuddies.length === 0 ? (
-                  <Text color="$gray11" textAlign="center">아직 성사된 버디가 없습니다.</Text>
+                  <Text color="$gray11" textAlign="center">{t('matching.buddies.noBuddies')}</Text>
                 ) : (
                   acceptedBuddies.map((buddy) => (
                     <Button
@@ -412,11 +504,7 @@ export default function HomeScreen() {
                             <YStack>
                               <Text fontSize="$5" fontWeight="bold">{buddy.name}</Text>
                               <Text fontSize="$3" color="$gray11">
-                                매칭일: {new Date(buddy.matchedAt).toLocaleDateString('ko-KR', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                })}
+                                {t('home.matchedDate')}: {new Date(buddy.matchedAt).toLocaleDateString()}
                               </Text>
                             </YStack>
                           </XStack>
@@ -432,12 +520,12 @@ export default function HomeScreen() {
           {/* 받은 친구 신청 */}
           <Card elevate size="$4" bordered>
             <Card.Header padded>
-              <Text fontSize="$6" fontWeight="bold">받은 친구 신청</Text>
+              <Text fontSize="$6" fontWeight="bold">{t('home.receivedFriendRequests')}</Text>
             </Card.Header>
             <Card.Footer padded>
               <YStack space="$4" width="100%">
                 {receivedRequests.length === 0 ? (
-                  <Text color="$gray11" textAlign="center">받은 친구 신청이 없습니다.</Text>
+                  <Text color="$gray11" textAlign="center">{t('home.noReceivedRequests')}</Text>
                 ) : (
                   receivedRequests.map((request) => (
                     <Card key={request._id} bordered>
@@ -456,13 +544,7 @@ export default function HomeScreen() {
                             <YStack>
                               <Text fontSize="$5" fontWeight="bold">{request.sender.name}</Text>
                               <Text fontSize="$3" color="$gray11">
-                                수신일: {new Date(request.createdAt).toLocaleDateString('ko-KR', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                                {t('home.receivedDate')}: {new Date(request.createdAt).toLocaleDateString()}
                               </Text>
                             </YStack>
                           </XStack>
@@ -477,7 +559,7 @@ export default function HomeScreen() {
                             backgroundColor="$green10"
                             onPress={() => handleRequestResponse(request._id, 'accepted')}
                           >
-                            수락
+                            {t('home.accept')}
                           </Button>
                           <Button
                             flex={1}
@@ -486,7 +568,7 @@ export default function HomeScreen() {
                             backgroundColor="$red10"
                             onPress={() => handleRequestResponse(request._id, 'rejected')}
                           >
-                            거절
+                            {t('home.reject')}
                           </Button>
                         </XStack>
                       </Card.Footer>
@@ -500,12 +582,12 @@ export default function HomeScreen() {
           {/* 보낸 친구 신청 */}
           <Card elevate size="$4" bordered>
             <Card.Header padded>
-              <Text fontSize="$6" fontWeight="bold">보낸 친구 신청</Text>
+              <Text fontSize="$6" fontWeight="bold">{t('home.sentFriendRequests')}</Text>
             </Card.Header>
             <Card.Footer padded>
               <YStack space="$4" width="100%">
                 {sentRequests.length === 0 ? (
-                  <Text color="$gray11" textAlign="center">보낸 친구 신청이 없습니다.</Text>
+                  <Text color="$gray11" textAlign="center">{t('home.noSentRequests')}</Text>
                 ) : (
                   sentRequests.map((request) => (
                     <Button
@@ -530,19 +612,13 @@ export default function HomeScreen() {
                         <Card.Footer padded>
                           <YStack space="$2" width="100%">
                             <XStack space="$2" alignItems="center">
-                              <Text fontSize="$3" color="$gray11">신청일: </Text>
+                              <Text fontSize="$3" color="$gray11">{t('home.sentDate')}: </Text>
                               <Text fontSize="$3" color="$gray12">
-                                {new Date(request.createdAt).toLocaleDateString('ko-KR', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                                {new Date(request.createdAt).toLocaleDateString()}
                               </Text>
                             </XStack>
                             <XStack space="$2" alignItems="center">
-                              <Text fontSize="$3" color="$gray11">상태: </Text>
+                              <Text fontSize="$3" color="$gray11">{t('home.status')}: </Text>
                               <Text 
                                 fontSize="$3" 
                                 color={
@@ -554,10 +630,10 @@ export default function HomeScreen() {
                                 }
                               >
                                 {request.status === 'pending' 
-                                  ? '대기 중' 
+                                  ? t('home.statusPending')
                                   : request.status === 'accepted' 
-                                    ? '수락됨' 
-                                    : '거절됨'}
+                                    ? t('home.statusAccepted')
+                                    : t('home.statusRejected')}
                               </Text>
                             </XStack>
                           </YStack>
