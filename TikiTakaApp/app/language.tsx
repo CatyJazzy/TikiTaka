@@ -1,10 +1,12 @@
-import { Stack, Text, Button, YStack, XStack } from 'tamagui';
+import { Stack, Text, YStack, XStack, Button } from 'tamagui';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 export default function LanguageScreen() {
   const [selected, setSelected] = useState('ko');
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSelect = (lang: string) => {
     setSelected(lang);
@@ -15,10 +17,10 @@ export default function LanguageScreen() {
     <Stack flex={1} alignItems="center" justifyContent="center" backgroundColor="rgba(255,255,240,0.3)">
       <YStack space="$4" alignItems="center" maxWidth={340} width="100%">
         <Text fontSize="$6" fontWeight="bold" marginBottom={8}>
-          언어 설정
+          {t('language.title')}
         </Text>
         <Text fontSize="$4" color="$gray10" marginBottom={12}>
-          사용할 언어를 선택해주세요
+          {t('language.selectMessage')}
         </Text>
         <XStack space="$4">
           <Button

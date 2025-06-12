@@ -3,6 +3,7 @@ import { Image, ScrollView, Keyboard, KeyboardAvoidingView, Platform, TextInput 
 import { SignupStepProps } from './types';
 import { useState, useRef, useCallback } from 'react';
 import { API_URL } from '../../constants';
+import { useTranslation } from 'react-i18next';
 
 const sendVerificationEmail = async (email: string) => {
   try {
@@ -49,12 +50,13 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
   const scrollViewRef = useRef<ScrollView>(null);
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
+  const { t } = useTranslation();
 
   const isFormValid = formData.isEmailVerified && formData.password && formData.password.length >= 1;
 
   const handleSendVerificationCode = async () => {
     if (!formData.email) {
-      alert('이메일을 입력해주세요.');
+      alert(t('signup.step1.enterEmail'));
       return;
     }
     
@@ -71,7 +73,7 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
 
   const handleVerifyCode = async () => {
     if (!formData.verificationCode) {
-      alert('인증 코드를 입력해주세요.');
+      alert(t('signup.step1.enterCode'));
       return;
     }
 
@@ -131,13 +133,13 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           <YStack space="$4" width="100%">
             <YStack space="$2">
               <Text fontSize="$5" fontWeight="bold">
-                이메일
+                {t('signup.step1.email')}
               </Text>
               <XStack space="$2" width="100%">
                 <Input
                   ref={emailInputRef}
                   flex={5}
-                  placeholder="이메일 주소"
+                  placeholder={t('signup.step1.email')}
                   value={formData.email}
                   onChangeText={(value: string) => onUpdate({ email: value })}
                   keyboardType="email-address"
@@ -153,7 +155,7 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                   flex={1}
                   minWidth={60}
                 >
-                  {isSendingCode ? '전송 중...' : '인증하기'}
+                  {isSendingCode ? '전송 중...' : t('signup.step1.verify')}
                 </Button>
               </XStack>
             </YStack>
@@ -161,13 +163,13 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
             {!formData.isEmailVerified && (
               <YStack space="$2">
                 <Text fontSize="$5" fontWeight="bold">
-                  인증번호
+                  {t('signup.step1.verificationCode')}
                 </Text>
                 <XStack space="$2" width="100%">
                   <Input
                     ref={verificationInputRef}
                     flex={3}
-                    placeholder="인증번호 6자리"
+                    placeholder={t('signup.step1.verificationCode')}
                     value={formData.verificationCode}
                     onChangeText={handleVerificationCodeChange}
                     keyboardType="number-pad"
@@ -196,7 +198,7 @@ export const Step1 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
 
             <YStack space="$2">
               <Text fontSize="$5" fontWeight="bold">
-                비밀번호
+                {t('signup.step1.password')}
               </Text>
               <Input
                 ref={passwordInputRef}

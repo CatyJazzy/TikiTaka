@@ -7,6 +7,9 @@ import 'react-native-reanimated';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import '../i18n'; // i18n 설정 파일 import
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../i18n';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -43,9 +46,11 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <I18nextProvider i18n={i18n}>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </I18nextProvider>
   );
 }
 

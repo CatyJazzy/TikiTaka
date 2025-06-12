@@ -4,6 +4,7 @@ import { Checkbox } from '@tamagui/checkbox';
 import { Check } from '@tamagui/lucide-icons';
 import { SignupStepProps } from './types';
 import { Adapt } from '@tamagui/adapt';
+import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = [
   '한국어',
@@ -19,21 +20,22 @@ const LANGUAGES = [
 ];
 
 export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) => {
+  const { t } = useTranslation();
   const isFormValid = formData.primaryLanguage && formData.targetLanguage;
 
   return (
     <YStack space="$4" width="100%" maxWidth={340} alignItems="center">
       <Text fontSize="$6" fontWeight="bold" textAlign="center" marginBottom="$4">
-        언어 선택
+        {t('signup.step5.title')}
       </Text>
 
       <YStack space="$6" width="100%">
         <YStack space="$2">
           <Text fontSize="$5" fontWeight="bold">
-            주로 사용하는 언어
+            {t('signup.step5.primaryLanguage.title')}
           </Text>
           <Text color="$gray11" fontSize="$3">
-            평소에 주로 사용하는 언어를 선택해 주세요.
+            {t('signup.step5.primaryLanguage.description')}
           </Text>
           <Stack width="100%">
             <Select
@@ -42,7 +44,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
               onValueChange={(value) => onUpdate({ primaryLanguage: value })}
             >
               <Select.Trigger>
-                <Select.Value placeholder="주로 사용하는 언어 선택" />
+                <Select.Value placeholder={t('signup.step5.primaryLanguage.select')} />
               </Select.Trigger>
 
               <Adapt when="sm" platform="touch">
@@ -78,10 +80,10 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
 
         <YStack space="$2">
           <Text fontSize="$5" fontWeight="bold">
-            교류하고 싶은 언어
+            {t('signup.step5.targetLanguage.title')}
           </Text>
           <Text color="$gray11" fontSize="$3">
-            친구와 교류하고 싶은 언어를 선택해 주세요.
+            {t('signup.step5.targetLanguage.description')}
           </Text>
           <Stack width="100%">
             <Select
@@ -90,7 +92,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
               onValueChange={(value) => onUpdate({ targetLanguage: value })}
             >
               <Select.Trigger>
-                <Select.Value placeholder="교류하고 싶은 언어 선택" />
+                <Select.Value placeholder={t('signup.step5.targetLanguage.select')} />
               </Select.Trigger>
 
               <Adapt when="sm" platform="touch">
@@ -126,7 +128,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
 
         <YStack space="$2">
           <Text fontSize="$5" fontWeight="bold">
-            영어 사용 가능 여부
+            {t('signup.step5.englishAbility.title')}
           </Text>
           <XStack space="$2" alignItems="center">
             <Checkbox
@@ -140,7 +142,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
                 <Check size={24} />
               </Checkbox.Indicator>
             </Checkbox>
-            <Text fontSize="$4">가능해요</Text>
+            <Text fontSize="$4">{t('signup.step5.englishAbility.canSpeak')}</Text>
           </XStack>
         </YStack>
       </YStack>
@@ -153,7 +155,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           size="$4"
           flex={1}
         >
-          이전
+          {t('signup.step5.previous')}
         </Button>
         <Button
           onPress={onNext}
@@ -164,7 +166,7 @@ export const Step5 = ({ formData, onUpdate, onNext, onPrev }: SignupStepProps) =
           opacity={isFormValid ? 1 : 0.5}
           disabled={!isFormValid}
         >
-          다음
+          {t('signup.step5.next')}
         </Button>
       </XStack>
     </YStack>
